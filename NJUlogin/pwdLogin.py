@@ -6,6 +6,7 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from base64 import b64encode
 from inputimeout import inputimeout, TimeoutOccurred
+from user_agents import parse
 import ddddocr
 
 from .utils import config, urls, get_post
@@ -62,15 +63,16 @@ class pwdLogin(object):
         selector = etree.HTML(html)
         password = self.pwdEncrypt(self.get_pwdDefaultEncryptSalt(selector))
 
+        dataIdx = 1 if parse(self.session.headers['User-Agent']).is_pc else 0
         data = {
             'username': self.username,
             'password': password,
-            'lt': selector.xpath('//input[@name="lt"]/@value')[1],
+            'lt': selector.xpath('//input[@name="lt"]/@value')[dataIdx],
             'captchaResponse': captcha,
-            'dllt': selector.xpath('//input[@name="dllt"]/@value')[1],
-            'execution': selector.xpath('//input[@name="execution"]/@value')[1],
-            '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[1],
-            'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[0]
+            'dllt': selector.xpath('//input[@name="dllt"]/@value')[dataIdx],
+            'execution': selector.xpath('//input[@name="execution"]/@value')[dataIdx],
+            '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[dataIdx],
+            'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[dataIdx]
         }
         res = get_post.post(self.session, url, data=data, timeout=self.getTimeout)
 
