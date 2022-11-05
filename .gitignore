@@ -3,5 +3,5 @@ build
 dist
 *.png
 *.egg-info
-*.ps1
-*.sh
+scripts
+test

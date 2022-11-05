@@ -8,7 +8,7 @@ setuptools.setup(
     version="1.0.1",
     author="Do1e",
     author_email="dpj.email@qq.com",
-    description="基于Python实现的南京大学统一身份认证登录模块，可用于登录校园各种网站",
+    description="南京大学统一身份认证登录模块，可用于登录校园各种网站",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Do1e/NJUlogin",
@@ -18,6 +18,8 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=['requests', 'opencv-python', 'numpy', 'lxml'],
+    install_requires=['requests', 'opencv-python',
+        'numpy', 'lxml', 'ddddocr', 'pycryptodome',
+        'inputimeout'],
     python_requires='>=3'
 )

@@ -1,7 +1,7 @@
 import urllib3
 urllib3.disable_warnings()
 
-getTimeout = 2
+getTimeout = 5
 loginTimeout = 60
 getkwargs = {'timeout': getTimeout, 'verify': False}
 headers = {

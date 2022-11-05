@@ -2,3 +2,6 @@ requests
 opencv-python
 numpy
 lxml
+ddddocr
+pycryptodome
+inputimeout
