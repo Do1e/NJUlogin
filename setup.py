@@ -5,7 +5,7 @@ with open("README.md", "r", encoding='utf-8') as fp:
 
 setuptools.setup(
     name="NJUlogin",
-    version="1.0.1",
+    version="2.0",
     author="Do1e",
     author_email="dpj.email@qq.com",
     description="南京大学统一身份认证登录模块，可用于登录校园各种网站",
