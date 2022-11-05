@@ -9,17 +9,18 @@ from .utils.clear import clear
 
 
 class QR(object):
-    def __init__(self, session: requests.Session):
+    def __init__(self, session: requests.Session, getTimeout: int = config.getTimeout):
         self.session = session
+        self.getTimeout = getTimeout
 
     def getQR(self) -> np.ndarray:
         """获取二维码图片，返回numpy数组"""
         self.ts = int(time.time()*1000)
         url = urls.QRid % self.ts
-        QRid = get_post.get(self.session, url).text
+        QRid = get_post.get(self.session, url, timeout=self.getTimeout).text
         self.QRid = QRid
         url = urls.QRimg % QRid
-        QRdata = get_post.get(self.session, url).content
+        QRdata = get_post.get(self.session, url, timeout=self.getTimeout).content
         qr =  cv2.imdecode(np.frombuffer(QRdata, np.uint8), cv2.IMREAD_COLOR)
         return qr[6:-6, 6:-6]
 
@@ -50,22 +51,35 @@ class QR(object):
 
 
 class QRlogin(object):
-    def __init__(self):
+    def __init__(self, headers: dict = config.headers, loginTimeout: int = config.loginTimeout, getTimeout: int = config.getTimeout):
+        """
+        QRlogin(headers: dict = config.headers, loginTimeout: int = config.loginTimeout, getTimeout: int = config.getTimeout)
+        @description:
+        二维码登录
+        -------
+        @param:
+        headers: dict, 请求头
+        loginTimeout: int, 登录超时时间，即二维码有效时间
+        getTimeout: int, 请求超时时间，即在getTimeout秒内未获取到响应则抛出TimeoutError
+        -------
+        """
         self.session = requests.Session()
-        self.session.headers.update(config.headers)
+        self.session.headers.update(headers)
+        self.loginTimeout = loginTimeout
+        self.getTimeout = getTimeout
 
     def getStatus(self, qr: QR) -> str:
         """等候扫码，返回扫码状态"""
         url =urls.status % (qr.ts, qr.QRid)
         session = self.session
-        status = get_post.get(session, url).text
+        status = get_post.get(session, url, timeout=self.getTimeout).text
         return status
 
     def waitingLogin(self, qr: QR) -> bool:
         """等候登录，返回登录状态"""
         # 0: 未扫码, 1: 登录成功, 2: 已扫码未确认登录
         first0, first2 = False, False
-        for _ in range(config.loginTimeout):
+        for _ in range(self.loginTimeout):
             status = self.getStatus(qr)
             try:
                 status = int(status)
@@ -89,7 +103,7 @@ class QRlogin(object):
 
     def login(self, dest: str) -> requests.Session | None:
         url = urls.login % dest
-        html = get_post.get(self.session, url).text
+        html = get_post.get(self.session, url, timeout=self.getTimeout).text
         qr = QR(self.session)
         clear()
         qr.printQR()
@@ -105,7 +119,7 @@ class QRlogin(object):
             '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[0],
             'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[0]
         }
-        res = get_post.post(self.session, url, data=data)
+        res = get_post.post(self.session, url, data=data, timeout=self.getTimeout)
         if res.url == url or res is None:
             print('登录失败')
             return None

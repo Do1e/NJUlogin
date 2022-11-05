@@ -11,15 +11,28 @@ from .utils import config, urls, get_post
 
 
 class pwdLogin(object):
-    def __init__(self, username: str, password: str):
+    def __init__(self, username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout):
+        """
+        pwdLogin(username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout)
+        @description:
+        账号密码登录
+        -------
+        @param:
+        username: str, 账号
+        password: str, 密码
+        headers: dict, 请求头
+        getTimeout: int, 请求超时时间，即在getTimeout秒内未获取到响应则抛出TimeoutError
+        -------
+        """
         self.session = requests.Session()
-        self.session.headers.update(config.headers)
+        self.session.headers.update(headers)
         self.username = username
         self.password = password
+        self.getTimeout = getTimeout
 
     def getCaptcha(self) -> str:
         """获取验证码"""
-        captcha = get_post.get(self.session, urls.captcha).content
+        captcha = get_post.get(self.session, urls.captcha, timeout=self.getTimeout).content
         ocr = ddddocr.DdddOcr(show_ad=False)
         return ocr.classification(captcha)
 
@@ -44,7 +57,7 @@ class pwdLogin(object):
         captcha = self.getCaptcha()
 
         url = urls.login % dest
-        html = get_post.get(self.session, url).text
+        html = get_post.get(self.session, url, timeout=self.getTimeout).text
         selector = etree.HTML(html)
         password = self.pwdEncrypt(self.get_pwdDefaultEncryptSalt(selector))
 
@@ -58,12 +71,12 @@ class pwdLogin(object):
             '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[1],
             'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[0]
         }
-        res = get_post.post(self.session, url, data=data)
+        res = get_post.post(self.session, url, data=data, timeout=self.getTimeout)
 
         if res.url == url:
             # 可能登录失败也可能是验证码错误
             selector = etree.HTML(res.text)
-            res = get_post.post(self.session, urls.dynamicCode,
+            res = get_post.post(self.session, urls.dynamicCode, timeout=self.getTimeout,
                 data={'username': self.username, 'authCodeTypeName': 'reAuthDynamicCodeType'}
             )
             msg = 'fail'
@@ -89,7 +102,7 @@ class pwdLogin(object):
                 'execution': selector.xpath('//input[@name="execution"]/@value')[0],
                 '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[0]
             }
-            res = get_post.post(self.session, url, data=data)
+            res = get_post.post(self.session, url, data=data, timeout=self.getTimeout)
             if res.url == url:
                 print('登录失败，动态码错误')
                 return None
