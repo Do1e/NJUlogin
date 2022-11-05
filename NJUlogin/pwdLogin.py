@@ -1,6 +1,7 @@
 import requests
 from lxml import etree
 import random
+import re
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from base64 import b64encode
@@ -38,8 +39,8 @@ class pwdLogin(object):
 
     def get_pwdDefaultEncryptSalt(self, selector: etree._Element) -> str:
         """获取密码加密盐"""
-        pwdDefaultEncryptSalt = selector.xpath('//input[@id="pwdDefaultEncryptSalt"]/@value')[0]
-        return pwdDefaultEncryptSalt
+        pwdDefaultEncryptSalt = '\n'.join(selector.xpath('//script/text()'))
+        return re.search(r'pwdDefaultEncryptSalt = "(.*)";', pwdDefaultEncryptSalt).group(1)
 
     def pwdEncrypt(self, pwdDefaultEncryptSalt: str) -> str:
         """密码加密"""
