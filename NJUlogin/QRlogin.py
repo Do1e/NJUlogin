@@ -3,6 +3,7 @@ import numpy as np
 import time
 import cv2
 from lxml import etree
+from user_agents import parse
 
 from .utils import config, urls, get_post
 from .utils.clear import clear
@@ -63,6 +64,7 @@ class QRlogin(object):
         getTimeout: int, 请求超时时间，即在getTimeout秒内未获取到响应则抛出TimeoutError
         -------
         """
+        assert parse(headers['User-Agent']).is_pc, '扫描登陆只支持PC端'
         self.session = requests.Session()
         self.session.headers.update(headers)
         self.loginTimeout = loginTimeout

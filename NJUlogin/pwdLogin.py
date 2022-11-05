@@ -13,7 +13,7 @@ from .utils import config, urls, get_post
 
 
 class pwdLogin(object):
-    def __init__(self, username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout):
+    def __init__(self, username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout, mobileLogin: bool = False):
         """
         pwdLogin(username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout)
         @description:
@@ -24,13 +24,17 @@ class pwdLogin(object):
         password: str, 密码
         headers: dict, 请求头
         getTimeout: int, 请求超时时间，即在getTimeout秒内未获取到响应则抛出TimeoutError
+        mobileLogin: bool, 是否是APP登录
         -------
         """
         self.session = requests.Session()
+        if mobileLogin:
+            assert parse(headers['User-Agent']).is_mobile, 'mobileLogin要求使用手机User-Agent'
         self.session.headers.update(headers)
         self.username = username
         self.password = password
         self.getTimeout = getTimeout
+        self.mobileLogin = mobileLogin
 
     def getCaptcha(self) -> str:
         """获取验证码"""
@@ -64,12 +68,13 @@ class pwdLogin(object):
         password = self.pwdEncrypt(self.get_pwdDefaultEncryptSalt(selector))
 
         dataIdx = 1 if parse(self.session.headers['User-Agent']).is_pc else 0
+        dllt = 'mobileLogin' if self.mobileLogin else selector.xpath('//input[@name="dllt"]/@value')[dataIdx]
         data = {
             'username': self.username,
             'password': password,
             'lt': selector.xpath('//input[@name="lt"]/@value')[dataIdx],
             'captchaResponse': captcha,
-            'dllt': selector.xpath('//input[@name="dllt"]/@value')[dataIdx],
+            'dllt': dllt,
             'execution': selector.xpath('//input[@name="execution"]/@value')[dataIdx],
             '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[dataIdx],
             'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[dataIdx]
