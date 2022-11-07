@@ -1,5 +1,5 @@
 import time, json
-from NJUlogin.QRlogin import QRlogin
+from NJUlogin import QRlogin
 
 dest = 'http://p.nju.edu.cn/cas/&renew=true'
 # or:

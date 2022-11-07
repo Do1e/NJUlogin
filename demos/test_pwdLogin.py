@@ -1,5 +1,5 @@
 import time, json
-from NJUlogin.pwdLogin import pwdLogin
+from NJUlogin import pwdLogin
 
 dest = 'http://p.nju.edu.cn/cas/&renew=true'
 # or:
