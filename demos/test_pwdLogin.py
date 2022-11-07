@@ -1,3 +1,4 @@
+import time, json
 from NJUlogin.pwdLogin import pwdLogin
 
 dest = 'http://p.nju.edu.cn/cas/&renew=true'
@@ -11,3 +12,10 @@ pwdlogin = pwdLogin('XXXXXXXXX', 'XXXXXXXXX')
 # or:
 # pwdlogin = pwdLogin('XXXXXXXXX', 'XXXXXXXXX', mobileLogin=True, headers=mobile_headers)
 session = pwdlogin.login(dest)
+
+url = 'http://p.nju.edu.cn/api/portal/v1/getinfo?_=%d' % int(time.time() * 1000)
+res = pwdlogin.get(url, timeout=5)
+# or:
+# res = session.get(url, timeout=5)
+data = json.loads(res.text)
+print('余额: %.2f元' % (data['results']['rows'][0]['balance'] / 100))

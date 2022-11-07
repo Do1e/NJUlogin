@@ -5,7 +5,7 @@ with open("README.md", "r", encoding='utf-8') as fp:
 
 setuptools.setup(
     name="NJUlogin",
-    version="2.2.1",
+    version="2.2.2",
     author="Do1e",
     author_email="dpj.email@qq.com",
     description="The Nanjing University login module can be used to log on to various campus web sites",

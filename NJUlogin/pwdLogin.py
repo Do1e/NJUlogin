@@ -9,10 +9,11 @@ from inputimeout import inputimeout, TimeoutOccurred
 from user_agents import parse
 import ddddocr
 
-from .utils import config, urls, get_post
+from .utils import config, urls
+from ._base_ import baseLogin
 
 
-class pwdLogin(object):
+class pwdLogin(baseLogin):
     def __init__(self, username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout, mobileLogin: bool = False):
         """
         pwdLogin(username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout)
@@ -27,18 +28,17 @@ class pwdLogin(object):
         mobileLogin: bool, 是否是APP登录
         -------
         """
-        self.session = requests.Session()
         if mobileLogin:
             assert parse(headers['User-Agent']).is_mobile, 'mobileLogin要求使用手机User-Agent'
-        self.session.headers.update(headers)
+        super().__init__(headers)
         self.username = username
         self.password = password
-        self.getTimeout = getTimeout
         self.mobileLogin = mobileLogin
+        self.getTimeout = getTimeout
 
     def getCaptcha(self) -> str:
         """获取验证码"""
-        captcha = get_post.get(self.session, urls.captcha, timeout=self.getTimeout).content
+        captcha = self.get(urls.captcha, timeout=self.getTimeout).content
         ocr = ddddocr.DdddOcr(show_ad=False)
         return ocr.classification(captcha)
 
@@ -63,7 +63,7 @@ class pwdLogin(object):
         captcha = self.getCaptcha()
 
         url = urls.login % dest
-        html = get_post.get(self.session, url, timeout=self.getTimeout).text
+        html = self.get(url, timeout=self.getTimeout).text
         selector = etree.HTML(html)
         password = self.pwdEncrypt(self.get_pwdDefaultEncryptSalt(selector))
 
@@ -79,12 +79,12 @@ class pwdLogin(object):
             '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[dataIdx],
             'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[dataIdx]
         }
-        res = get_post.post(self.session, url, data=data, timeout=self.getTimeout)
+        res = self.post(url, data=data, timeout=self.getTimeout)
 
         if res.url == url:
             # 可能登录失败也可能是验证码错误
             selector = etree.HTML(res.text)
-            res = get_post.post(self.session, urls.dynamicCode, timeout=self.getTimeout,
+            res = self.post(self.session, urls.dynamicCode, timeout=self.getTimeout,
                 data={'username': self.username, 'authCodeTypeName': 'reAuthDynamicCodeType'}
             )
             msg = 'fail'
@@ -110,7 +110,7 @@ class pwdLogin(object):
                 'execution': selector.xpath('//input[@name="execution"]/@value')[0],
                 '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[0]
             }
-            res = get_post.post(self.session, url, data=data, timeout=self.getTimeout)
+            res = self.post(self.session, url, data=data, timeout=self.getTimeout)
             if res.url == url:
                 print('登录失败，动态码错误')
                 return None

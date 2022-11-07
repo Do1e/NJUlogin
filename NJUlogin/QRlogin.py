@@ -7,6 +7,7 @@ from user_agents import parse
 
 from .utils import config, urls, get_post
 from .utils.clear import clear
+from ._base_ import baseLogin
 
 
 class QR(object):
@@ -51,7 +52,7 @@ class QR(object):
         print('')
 
 
-class QRlogin(object):
+class QRlogin(baseLogin):
     def __init__(self, headers: dict = config.headers, loginTimeout: int = config.loginTimeout, getTimeout: int = config.getTimeout):
         """
         QRlogin(headers: dict = config.headers, loginTimeout: int = config.loginTimeout, getTimeout: int = config.getTimeout)
@@ -65,16 +66,14 @@ class QRlogin(object):
         -------
         """
         assert parse(headers['User-Agent']).is_pc, '扫描登陆只支持PC端'
-        self.session = requests.Session()
-        self.session.headers.update(headers)
+        super().__init__(headers)
         self.loginTimeout = loginTimeout
         self.getTimeout = getTimeout
 
     def getStatus(self, qr: QR) -> str:
         """等候扫码，返回扫码状态"""
         url =urls.status % (qr.ts, qr.QRid)
-        session = self.session
-        status = get_post.get(session, url, timeout=self.getTimeout).text
+        status = self.get(url, timeout=self.getTimeout).text
         return status
 
     def waitingLogin(self, qr: QR) -> bool:
@@ -105,7 +104,7 @@ class QRlogin(object):
 
     def login(self, dest: str) -> requests.Session | None:
         url = urls.login % dest
-        html = get_post.get(self.session, url, timeout=self.getTimeout).text
+        html = self.get(url, timeout=self.getTimeout).text
         qr = QR(self.session)
         clear()
         qr.printQR()
@@ -121,7 +120,7 @@ class QRlogin(object):
             '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[0],
             'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[0]
         }
-        res = get_post.post(self.session, url, data=data, timeout=self.getTimeout)
+        res = self.post(url, data=data, timeout=self.getTimeout)
         if res.url == url or res is None:
             print('登录失败')
             return None
