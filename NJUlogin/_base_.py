@@ -16,3 +16,13 @@ class baseLogin(object):
     def logout(self) -> None:
         """退出登录"""
         self.get(urls.logout, timeout=self.getTimeout)
+
+    def logout_all(self) -> None:
+        """退出所有设备的登录"""
+        from lxml import etree
+        html = self.get(urls.onlineList, timeout=self.getTimeout)
+        selector = etree.HTML(html.text)
+        OnlineList = selector.xpath('//input[@value="踢出"]/@onclick')
+        for item in OnlineList:
+            tokenId = item.split("'")[1]
+            self.post(urls.logoutOthers, data={'tokenId': tokenId})
