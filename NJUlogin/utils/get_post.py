@@ -1,7 +1,5 @@
 import requests
 
-from . import config
-
 def get(session: requests.Session, url: str, **kwargs) -> requests.Response:
     try:
         return session.get(url, verify=False, **kwargs)
