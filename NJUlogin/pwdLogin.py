@@ -82,38 +82,47 @@ class pwdLogin(baseLogin):
         res = self.post(url, data=data, timeout=self.getTimeout)
 
         if res.url == url:
+            # 登录失败
             # 可能登录失败也可能是验证码错误
             selector = etree.HTML(res.text)
-            res = self.post(self.session, urls.dynamicCode, timeout=self.getTimeout,
-                data={'username': self.username, 'authCodeTypeName': 'reAuthDynamicCodeType'}
-            )
-            msg = 'fail'
-            try:
-                msg = res.json()['returnMessage']
-                res = res.json()['res']
-                if msg == '发送动态码失败':
-                    msg += '，可能原因：\n1. 账号密码填写错误，请检查后重试\n2. 识别图形验证码有误，请重新运行程序\n如果无法解决，可暂时尝试浏览器登录，之后一周不用重新获取动态码，并欢迎提交issue'
-                elif msg.startswith('您已重复发送'):
-                    res = 'success'
-                assert res == 'success'
-            except:
-                print('登录失败，%s' % msg)
+            errorMsg = selector.xpath('//span[@id="errorMsg"]/text()')[0]
+            if errorMsg == '无效的验证码':
+                # 验证码错误
+                return self.login(dest)
+            elif errorMsg == '您提供的用户名或者密码有误':
+                # 账号密码错误
+                print('登录失败，账号密码错误')
                 return None
-            try:
-                dynamicCode = inputimeout(prompt='请输入发送至手机的验证码: ', timeout=120)
-            except TimeoutOccurred:
-                print('登录失败，输入验证码超时')
-                return None
-            data = {
-                'dynamicCode': dynamicCode,
-                'username': self.username,
-                'execution': selector.xpath('//input[@name="execution"]/@value')[0],
-                '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[0]
-            }
-            res = self.post(self.session, url, data=data, timeout=self.getTimeout)
-            if res.url == url:
-                print('登录失败，动态码错误')
-                return None
+            else:
+                # 需要输入动态码
+                res = self.post(self.session, urls.dynamicCode, timeout=self.getTimeout,
+                    data={'username': self.username, 'authCodeTypeName': 'reAuthDynamicCodeType'}
+                )
+                msg = 'fail'
+                try:
+                    msg = res.json()['returnMessage']
+                    res = res.json()['res']
+                    if msg.startswith('您已重复发送'):
+                        res = 'success'
+                    assert res == 'success'
+                except:
+                    print('登录失败，%s' % msg)
+                    return None
+                try:
+                    dynamicCode = inputimeout(prompt='请输入发送至手机的动态码: ', timeout=120)
+                except TimeoutOccurred:
+                    print('登录失败，输入动态码超时')
+                    return None
+                data = {
+                    'dynamicCode': dynamicCode,
+                    'username': self.username,
+                    'execution': selector.xpath('//input[@name="execution"]/@value')[0],
+                    '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[0]
+                }
+                res = self.post(self.session, url, data=data, timeout=self.getTimeout)
+                if res.url == url:
+                    print('登录失败，动态码错误')
+                    return None
 
         print('登录成功')
         return self.session
