@@ -1,5 +1,5 @@
 requests
-opencv-python
+opencv-python-headless
 numpy
 lxml
 ddddocr
