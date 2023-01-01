@@ -1,5 +1,8 @@
 # NJUlogin
 
+---
+2023-01-01: 统一身份认证于今天迎来了一波更新，NJUlogin暂时无法使用，近期尝试更新。
+---
 
 * 南京大学统一身份认证登录模块，可用于登录校园各种网站，[Github link](https://github.com/Do1e/NJUlogin)，[PyPI link](https://pypi.org/project/NJUlogin/)。
 
@@ -7,7 +10,7 @@
 ```bash
 python setup.py install
 ```
-或者  
+或者
 ```bash
 pip install NJUlogin
 ```
