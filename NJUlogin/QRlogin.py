@@ -2,6 +2,7 @@ import requests
 import numpy as np
 import time
 import cv2
+import os
 from lxml import etree
 from user_agents import parse
 
@@ -110,19 +111,20 @@ class QRlogin(baseLogin):
         qr.printQR()
         if not self.waitingLogin(qr):
             return None
-        
+
         selector = etree.HTML(html)
         data = {
-            'lt': selector.xpath('//input[@name="lt"]/@value')[0],
+            'lt': selector.xpath('//input[@name="lt"]/@value')[1],
             'uuid': qr.QRid,
-            'dllt': selector.xpath('//input[@name="dllt"]/@value')[0],
-            'execution': selector.xpath('//input[@name="execution"]/@value')[0],
-            '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[0],
-            'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[0]
+            'dllt': selector.xpath('//input[@name="dllt"]/@value')[1],
+            'execution': selector.xpath('//input[@name="execution"]/@value')[1],
+            '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[1],
+            'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[1]
         }
         res = self.post(url, data=data, timeout=self.getTimeout)
         if res.url == url or res is None:
             print('登录失败')
             return None
         print('登录成功')
+        os.remove('QR.png')
         return self.session

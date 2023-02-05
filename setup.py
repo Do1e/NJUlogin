@@ -20,7 +20,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires = ['requests', 'opencv-python-headless',
-        'numpy', 'lxml', 'ddddocr', 'pycryptodome',
-        'inputimeout', 'user_agents'],
+        'numpy', 'lxml', 'ddddocr', 'pycryptodome', 'user_agents'],
     python_requires = '>=3.10'
 )

@@ -4,5 +4,4 @@ numpy
 lxml
 ddddocr
 pycryptodome
-inputimeout
 user_agents

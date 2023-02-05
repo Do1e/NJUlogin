@@ -5,8 +5,6 @@ import re
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from base64 import b64encode
-from inputimeout import inputimeout, TimeoutOccurred
-from user_agents import parse
 import ddddocr
 
 from .utils import config, urls
@@ -14,7 +12,7 @@ from ._base_ import baseLogin
 
 
 class pwdLogin(baseLogin):
-    def __init__(self, username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout, mobileLogin: bool = False):
+    def __init__(self, username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout):
         """
         pwdLogin(username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout)
         @description:
@@ -25,15 +23,11 @@ class pwdLogin(baseLogin):
         password: str, 密码
         headers: dict, 请求头
         getTimeout: int, 请求超时时间，即在getTimeout秒内未获取到响应则抛出TimeoutError
-        mobileLogin: bool, 是否是APP登录
         -------
         """
-        if mobileLogin and not parse(headers['User-Agent']).is_mobile:
-            print('WARNING: mobileLogin要求使用手机User-Agent，当然你也可以不这样做，但有一定的风险')
         super().__init__(headers)
         self.username = username
         self.password = password
-        self.mobileLogin = mobileLogin
         self.getTimeout = getTimeout
 
     def getCaptcha(self) -> str:
@@ -59,7 +53,7 @@ class pwdLogin(baseLogin):
         aes = AES.new(key, AES.MODE_CBC, iv)
         return b64encode(aes.encrypt(pad_pkcs7)).decode('utf-8')
 
-    def login(self, dest: str) -> requests.Session | None:
+    def login(self, dest: str, trytimes: int = 0) -> requests.Session | None:
         captcha = self.getCaptcha()
 
         url = urls.login % dest
@@ -67,71 +61,33 @@ class pwdLogin(baseLogin):
         selector = etree.HTML(html)
         password = self.pwdEncrypt(self.get_pwdDefaultEncryptSalt(selector))
 
-        dataIdx = 1 if parse(self.session.headers['User-Agent']).is_pc else 0
-        dllt = 'mobileLogin' if self.mobileLogin else selector.xpath('//input[@name="dllt"]/@value')[dataIdx]
         data = {
             'username': self.username,
             'password': password,
-            'lt': selector.xpath('//input[@name="lt"]/@value')[dataIdx],
+            'lt': selector.xpath('//input[@name="lt"]/@value')[0],
             'captchaResponse': captcha,
-            'dllt': dllt,
-            'execution': selector.xpath('//input[@name="execution"]/@value')[dataIdx],
-            '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[dataIdx],
-            'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[dataIdx]
+            'dllt': selector.xpath('//input[@name="dllt"]/@value')[0],
+            'execution': selector.xpath('//input[@name="execution"]/@value')[0],
+            '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[0],
+            'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[0]
         }
         res = self.post(url, data=data, timeout=self.getTimeout)
-
-        if res.url == url:
-            # 登录失败
-            # 可能登录失败也可能是验证码错误
+        if res.url == url or res is None:
+            # print('登录失败')
             selector = etree.HTML(res.text)
             try:
                 errorMsg = selector.xpath('//span[@id="msg"]/text()')[0]
             except IndexError:
-                errorMsg = '需要输入验证码'
-                # 需要输入动态码
-                res = self.post(urls.dynamicCode,
-                    data={'username': self.username, 'authCodeTypeName': 'reAuthDynamicCodeType'},
-                    timeout=self.getTimeout
-                )
-                msg = 'fail'
-                try:
-                    msg = res.json()['returnMessage']
-                    res = res.json()['res']
-                    if msg.startswith('您已重复发送'):
-                        res = 'success'
-                    assert res == 'success'
-                except:
-                    print('登录失败，%s' % msg)
-                    return None
-                try:
-                    dynamicCode = inputimeout(prompt='请输入发送至手机的动态码: ', timeout=120)
-                except TimeoutOccurred:
-                    print('登录失败，输入动态码超时')
-                    return None
-                data = {
-                    'dynamicCode': dynamicCode,
-                    'username': self.username,
-                    'execution': selector.xpath('//input[@name="execution"]/@value')[0],
-                    '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[0]
-                }
-                res = self.post(url, data=data, timeout=self.getTimeout)
-                if res.url == url:
-                    print('登录失败，动态码错误')
-                    return None
-                else:
-                    print('登录成功')
-                    return self.session
+                print('登录失败，未知错误，可能是需要手机验证码，请先尝试手动登录')
+                return None
             if errorMsg == '无效的验证码':
-                # 验证码错误
-                return self.login(dest)
-            elif errorMsg == '您提供的用户名或者密码有误':
-                # 账号密码错误
-                print('登录失败，账号密码错误')
-                return None
+                if trytimes >= 5:
+                    print('登录失败，验证码识别错误次数过多')
+                    return None
+                print('登录失败，验证码识别错误，正在重试')
+                return self.login(dest, trytimes + 1)
             else:
-                print('登录失败，%s' % errorMsg)
-                return None
-
+                print('登录失败，' + errorMsg)
+            return None
         print('登录成功')
         return self.session
