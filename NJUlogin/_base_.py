@@ -13,6 +13,10 @@ class baseLogin(object):
     def post(self, url: str, data: dict, **kwargs) -> requests.Response:
         return get_post.post(self.session, url, data, **kwargs)
 
+    def judge_not_login(self, html: requests.Response, loginurl: str) -> bool:
+        """判断是否登录成功"""
+        return html is None or html.url == loginurl
+
     def logout(self) -> None:
         """退出登录"""
         self.get(urls.logout, timeout=self.getTimeout)

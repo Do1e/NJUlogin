@@ -72,7 +72,7 @@ class pwdLogin(baseLogin):
             'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[0]
         }
         res = self.post(url, data=data, timeout=self.getTimeout)
-        if res.url == url or res is None:
+        if self.judge_not_login(res, url):
             # print('登录失败')
             selector = etree.HTML(res.text)
             try:

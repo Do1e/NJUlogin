@@ -122,7 +122,7 @@ class QRlogin(baseLogin):
             'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[1]
         }
         res = self.post(url, data=data, timeout=self.getTimeout)
-        if res.url == url or res is None:
+        if self.judge_not_login(res, url):
             print('登录失败')
             return None
         print('登录成功')
