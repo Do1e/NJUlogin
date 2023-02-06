@@ -15,7 +15,8 @@ class baseLogin(object):
 
     def judge_not_login(self, html: requests.Response, loginurl: str) -> bool:
         """判断是否登录成功"""
-        return html is None or html.url == loginurl
+        return html is None or html.url == loginurl or \
+               html.url.endswith('security_check')
 
     def logout(self) -> None:
         """退出登录"""
