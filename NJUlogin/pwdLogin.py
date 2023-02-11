@@ -53,7 +53,7 @@ class pwdLogin(baseLogin):
         aes = AES.new(key, AES.MODE_CBC, iv)
         return b64encode(aes.encrypt(pad_pkcs7)).decode('utf-8')
 
-    def login(self, dest: str, trytimes: int = 0) -> requests.Session | None:
+    def login(self, dest: str, trytimes: int = 0) -> requests.Session:
         captcha = self.getCaptcha()
 
         url = urls.login % dest

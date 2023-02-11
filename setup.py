@@ -21,5 +21,5 @@ setuptools.setup(
     ],
     install_requires = ['requests', 'opencv-python-headless',
         'numpy', 'lxml', 'ddddocr', 'pycryptodome', 'user_agents'],
-    python_requires = '>=3.10'
+    python_requires = '>=3.7'
 )

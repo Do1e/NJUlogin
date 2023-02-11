@@ -103,7 +103,7 @@ class QRlogin(baseLogin):
         print('登录超时')
         return False
 
-    def login(self, dest: str) -> requests.Session | None:
+    def login(self, dest: str) -> requests.Session:
         url = urls.login % dest
         html = self.get(url, timeout=self.getTimeout).text
         qr = QR(self.session)
