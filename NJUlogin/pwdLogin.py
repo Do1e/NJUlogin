@@ -2,6 +2,7 @@ import requests
 from lxml import etree
 import random
 import re
+import time
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from base64 import b64encode
@@ -32,7 +33,8 @@ class pwdLogin(baseLogin):
 
     def getCaptcha(self) -> str:
         """获取验证码"""
-        captcha = self.get(urls.captcha, timeout=self.getTimeout).content
+        ms = int(time.time() * 1000) % 1000
+        captcha = self.get(urls.captcha % ms, timeout=self.getTimeout).content
         ocr = ddddocr.DdddOcr(show_ad=False)
         return ocr.classification(captcha)
 
