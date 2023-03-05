@@ -56,10 +56,9 @@ class pwdLogin(baseLogin):
         return b64encode(aes.encrypt(pad_pkcs7)).decode('utf-8')
 
     def login(self, dest: str, trytimes: int = 0) -> requests.Session:
-        captcha = self.getCaptcha()
-
         url = urls.login % dest
         html = self.get(url, timeout=self.getTimeout).text
+        captcha = self.getCaptcha()
         selector = etree.HTML(html)
         password = self.pwdEncrypt(self.get_pwdDefaultEncryptSalt(selector))
 
