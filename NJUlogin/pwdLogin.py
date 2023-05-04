@@ -55,8 +55,11 @@ class pwdLogin(baseLogin):
         aes = AES.new(key, AES.MODE_CBC, iv)
         return b64encode(aes.encrypt(pad_pkcs7)).decode('utf-8')
 
-    def login(self, dest: str, trytimes: int = 0) -> requests.Session:
-        url = urls.login % dest
+    def login(self, dest: str = None, trytimes: int = 0) -> requests.Session:
+        if dest is not None:
+            url = urls.login % dest
+        else:
+            url = urls.login.split("?")[0]
         html = self.get(url, timeout=self.getTimeout).text
         captcha = self.getCaptcha()
         selector = etree.HTML(html)
