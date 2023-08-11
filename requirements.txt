@@ -2,6 +2,6 @@ requests
 opencv-python-headless
 numpy
 lxml
-ddddocr
 pycryptodome
 user_agents
+captchaOCR

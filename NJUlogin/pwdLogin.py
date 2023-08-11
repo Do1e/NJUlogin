@@ -6,7 +6,7 @@ import time
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from base64 import b64encode
-import ddddocr
+from captchaOCR import CaptchaOCR
 
 from .utils import config, urls
 from ._base_ import baseLogin
@@ -35,8 +35,8 @@ class pwdLogin(baseLogin):
         """获取验证码"""
         ms = int(time.time() * 1000) % 1000
         captcha = self.get(urls.captcha % ms, timeout=self.getTimeout).content
-        ocr = ddddocr.DdddOcr(show_ad=False)
-        return ocr.classification(captcha)
+        ocr = CaptchaOCR()
+        return ocr.get_text(captcha)
 
     def get_pwdDefaultEncryptSalt(self, selector: etree._Element) -> str:
         """获取密码加密盐"""
