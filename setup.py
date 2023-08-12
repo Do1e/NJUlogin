@@ -3,6 +3,8 @@ import NJUlogin
 
 with open("README.md", "r", encoding='utf-8') as fp:
     long_description = fp.read()
+with open("requirements.txt", "r", encoding='utf-8') as fp:
+    requirements = fp.read().splitlines()
 
 setuptools.setup(
     name = NJUlogin.__title__,
@@ -19,7 +21,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires = ['requests', 'opencv-python-headless',
-        'numpy', 'lxml', 'pycryptodome', 'user_agents', 'captchaOCR'],
+    install_requires = requirements,
     python_requires = '>=3.7'
 )

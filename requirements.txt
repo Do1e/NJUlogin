@@ -1,5 +1,5 @@
 requests
-opencv-python-headless
+Pillow
 numpy
 lxml
 pycryptodome

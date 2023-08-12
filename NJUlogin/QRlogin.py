@@ -1,7 +1,8 @@
 import requests
 import numpy as np
 import time
-import cv2
+from PIL import Image
+from io import BytesIO
 import os
 from lxml import etree
 from user_agents import parse
@@ -24,29 +25,29 @@ class QR(object):
         self.QRid = QRid
         url = urls.QRimg % QRid
         QRdata = get_post.get(self.session, url, timeout=self.getTimeout).content
-        qr =  cv2.imdecode(np.frombuffer(QRdata, np.uint8), cv2.IMREAD_COLOR)
-        return qr[6:-6, 6:-6]
+        qr = Image.open(BytesIO(QRdata)).convert('L')
+        return np.array(qr)[6:-6, 6:-6]
 
     def printQR(self):
         """打印二维码至终端，同时也会保存一份QR.png到当前目录"""
         QRimg = self.getQR()
-        cv2.imwrite('QR.png', QRimg)
+        Image.fromarray(QRimg).save('QR.png')
         char_full = '\u2588'
         char_up = '\u2580'
         char_down = '\u2584'
         for i in range(0, QRimg.shape[0]-3, 6):
             for j in range(0, QRimg.shape[1], 3):
-                if QRimg[i, j, 0] < 128 and QRimg[i+3, j, 0] < 128:
+                if QRimg[i, j] < 128 and QRimg[i+3, j] < 128:
                     print(char_full, end='')
-                elif QRimg[i, j, 0] < 128 and QRimg[i+3, j, 0] >= 128:
+                elif QRimg[i, j] < 128 and QRimg[i+3, j] >= 128:
                     print(char_up, end='')
-                elif QRimg[i, j, 0] >= 128 and QRimg[i+3, j, 0] < 128:
+                elif QRimg[i, j] >= 128 and QRimg[i+3, j] < 128:
                     print(char_down, end='')
                 else:
                     print(' ', end='')
             print('')
         for j in range(0, QRimg.shape[1], 3):
-            if QRimg[-1, j, 0] < 128:
+            if QRimg[-1, j] < 128:
                 print(char_up, end='')
             else:
                 print(' ', end='')
