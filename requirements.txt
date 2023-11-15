@@ -4,4 +4,3 @@ numpy
 lxml
 pycryptodome
 user_agents
-captchaOCR

@@ -6,8 +6,8 @@ import time
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from base64 import b64encode
-from captchaOCR import CaptchaOCR
 
+from .captchaOCR import CaptchaOCR
 from .utils import config, urls
 from ._base_ import baseLogin
 
