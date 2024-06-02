@@ -93,4 +93,5 @@ class pwdLogin(baseLogin):
             else:
                 print('登录失败，' + errorMsg)
             return None
+        self.response = res
         return self.session

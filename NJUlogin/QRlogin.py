@@ -127,4 +127,5 @@ class QRlogin(baseLogin):
             print('登录失败')
             return None
         os.remove('QR.png')
+        self.response = res
         return self.session
