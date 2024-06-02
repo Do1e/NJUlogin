@@ -126,6 +126,5 @@ class QRlogin(baseLogin):
         if self.judge_not_login(res, url):
             print('登录失败')
             return None
-        print('登录成功')
         os.remove('QR.png')
         return self.session
