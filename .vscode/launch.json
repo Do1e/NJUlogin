@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "QRlogin",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "demos/test_QRlogin.py",
             "console": "integratedTerminal",
@@ -14,9 +14,17 @@
         },
         {
             "name": "pwdLogin",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "demos/test_pwdLogin.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "current file",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true
         }
