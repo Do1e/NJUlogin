@@ -104,8 +104,11 @@ class QRlogin(baseLogin):
         print('登录超时')
         return False
 
-    def login(self, dest: str) -> requests.Session:
-        url = urls.login % dest
+    def login(self, dest: str = None) -> requests.Session:
+        if dest is not None:
+            url = urls.login % dest
+        else:
+            url = urls.login.split("?")[0]
         html = self.get(url, timeout=self.getTimeout).text
         qr = QR(self.session)
         clear()

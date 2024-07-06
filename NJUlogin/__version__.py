@@ -1,5 +1,5 @@
 __title__ = "NJUlogin"
-__version__ = "3.1.4"
+__version__ = "3.1.5"
 __description__ = "The Nanjing University login module, which can be used to log in to the various campus web sites"
 __url__ = "https://github.com/Do1e/NJUlogin"
 __author__ = "Do1e"
