@@ -9,11 +9,11 @@ from user_agents import parse
 
 from .utils import config, urls, get_post
 from .utils.clear import clear
-from ._base_ import baseLogin
+from .base import baseLogin
 
 
 class QR(object):
-    def __init__(self, session: requests.Session, getTimeout: int = config.getTimeout):
+    def __init__(self, session: requests.Session, getTimeout: int):
         self.session = session
         self.getTimeout = getTimeout
 
@@ -55,22 +55,21 @@ class QR(object):
 
 
 class QRlogin(baseLogin):
-    def __init__(self, headers: dict = config.headers, loginTimeout: int = config.loginTimeout, getTimeout: int = config.getTimeout):
+    def __init__(self, loginTimeout: int = config.loginTimeout, *args, **kwargs):
         """
-        QRlogin(headers: dict = config.headers, loginTimeout: int = config.loginTimeout, getTimeout: int = config.getTimeout)
+        QRlogin(loginTimeout: int = config.loginTimeout, headers: dict = config.headers, getTimeout: int = config.getTimeout)
         @description:
         二维码登录
         -------
         @param:
-        headers: dict, 请求头
         loginTimeout: int, 登录超时时间，即二维码有效时间
+        headers: dict, 请求头
         getTimeout: int, 请求超时时间，即在getTimeout秒内未获取到响应则抛出TimeoutError
         -------
         """
-        assert parse(headers['User-Agent']).is_pc, '扫码登录只支持PC端'
-        super().__init__(headers)
+        super().__init__(*args, **kwargs)
+        assert parse(self.session.headers['User-Agent']).is_pc, '扫码登录只支持PC端'
         self.loginTimeout = loginTimeout
-        self.getTimeout = getTimeout
 
     def getStatus(self, qr: QR) -> str:
         """等候扫码，返回扫码状态"""
@@ -110,7 +109,7 @@ class QRlogin(baseLogin):
         else:
             url = urls.login.split("?")[0]
         html = self.get(url, timeout=self.getTimeout).text
-        qr = QR(self.session)
+        qr = QR(self.session, self.getTimeout)
         clear()
         qr.printQR()
         if not self.waitingLogin(qr):

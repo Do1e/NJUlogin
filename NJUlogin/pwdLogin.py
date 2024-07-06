@@ -8,12 +8,12 @@ from Crypto.Util.Padding import pad
 from base64 import b64encode
 
 from .captchaOCR import CaptchaOCR
-from .utils import config, urls
-from ._base_ import baseLogin
+from .utils import urls
+from .base import baseLogin
 
 
 class pwdLogin(baseLogin):
-    def __init__(self, username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout):
+    def __init__(self, username: str, password: str, *args, **kwargs):
         """
         pwdLogin(username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout)
         @description:
@@ -26,10 +26,9 @@ class pwdLogin(baseLogin):
         getTimeout: int, 请求超时时间，即在getTimeout秒内未获取到响应则抛出TimeoutError
         -------
         """
-        super().__init__(headers)
+        super().__init__(*args, **kwargs)
         self.username = username
         self.password = password
-        self.getTimeout = getTimeout
 
     def getCaptcha(self) -> str:
         """获取验证码"""

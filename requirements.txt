@@ -5,3 +5,4 @@ lxml
 pycryptodome
 user_agents
 onnxruntime
+cryptography
