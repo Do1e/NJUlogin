@@ -1,5 +1,6 @@
 import requests
 
+
 def get(session: requests.Session, url: str, **kwargs) -> requests.Response:
     try:
         return session.get(url, verify=False, **kwargs)
@@ -8,7 +9,10 @@ def get(session: requests.Session, url: str, **kwargs) -> requests.Response:
     except requests.exceptions.ConnectionError:
         raise ConnectionError('请求网页"%s"时发生连接错误，请检查网络连接' % url)
 
-def post(session: requests.Session, url: str, data: dict, **kwargs) -> requests.Response:
+
+def post(
+    session: requests.Session, url: str, data: dict, **kwargs
+) -> requests.Response:
     try:
         return session.post(url, data=data, verify=False, **kwargs)
     except requests.exceptions.Timeout:

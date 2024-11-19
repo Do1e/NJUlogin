@@ -39,20 +39,22 @@ class pwdLogin(baseLogin):
 
     def get_pwdDefaultEncryptSalt(self, selector: etree._Element) -> str:
         """获取密码加密盐"""
-        pwdDefaultEncryptSalt = '\n'.join(selector.xpath('//script/text()'))
-        return re.search(r'pwdDefaultEncryptSalt = "(.*)";', pwdDefaultEncryptSalt).group(1)
+        pwdDefaultEncryptSalt = "\n".join(selector.xpath("//script/text()"))
+        return re.search(
+            r'pwdDefaultEncryptSalt = "(.*)";', pwdDefaultEncryptSalt
+        ).group(1)
 
     def pwdEncrypt(self, pwdDefaultEncryptSalt: str) -> str:
         """密码加密"""
-        char = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678'
-        rds1 = ''.join([random.choice(char) for _ in range(64)])
-        rds2 = ''.join([random.choice(char) for _ in range(16)])
-        data = (rds1 + self.password).encode('utf-8')
-        key = pwdDefaultEncryptSalt.encode('utf-8')
-        iv = rds2.encode('utf-8')
-        pad_pkcs7 = pad(data, AES.block_size, style='pkcs7')
+        char = "ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678"
+        rds1 = "".join([random.choice(char) for _ in range(64)])
+        rds2 = "".join([random.choice(char) for _ in range(16)])
+        data = (rds1 + self.password).encode("utf-8")
+        key = pwdDefaultEncryptSalt.encode("utf-8")
+        iv = rds2.encode("utf-8")
+        pad_pkcs7 = pad(data, AES.block_size, style="pkcs7")
         aes = AES.new(key, AES.MODE_CBC, iv)
-        return b64encode(aes.encrypt(pad_pkcs7)).decode('utf-8')
+        return b64encode(aes.encrypt(pad_pkcs7)).decode("utf-8")
 
     def login(self, dest: str = None, trytimes: int = 0) -> requests.Session:
         if dest is not None:
@@ -65,14 +67,14 @@ class pwdLogin(baseLogin):
         password = self.pwdEncrypt(self.get_pwdDefaultEncryptSalt(selector))
 
         data = {
-            'username': self.username,
-            'password': password,
-            'lt': selector.xpath('//input[@name="lt"]/@value')[0],
-            'captchaResponse': captcha,
-            'dllt': selector.xpath('//input[@name="dllt"]/@value')[0],
-            'execution': selector.xpath('//input[@name="execution"]/@value')[0],
-            '_eventId': selector.xpath('//input[@name="_eventId"]/@value')[0],
-            'rmShown': selector.xpath('//input[@name="rmShown"]/@value')[0]
+            "username": self.username,
+            "password": password,
+            "lt": selector.xpath('//input[@name="lt"]/@value')[0],
+            "captchaResponse": captcha,
+            "dllt": selector.xpath('//input[@name="dllt"]/@value')[0],
+            "execution": selector.xpath('//input[@name="execution"]/@value')[0],
+            "_eventId": selector.xpath('//input[@name="_eventId"]/@value')[0],
+            "rmShown": selector.xpath('//input[@name="rmShown"]/@value')[0],
         }
         res = self.post(url, data=data, timeout=self.getTimeout)
         if self.judge_not_login(res, url):
@@ -81,16 +83,16 @@ class pwdLogin(baseLogin):
             try:
                 errorMsg = selector.xpath('//span[@id="msg1"]/text()')[0].strip()
             except IndexError:
-                print('登录失败，未知错误，可能是需要手机验证码，请先尝试手动登录')
+                print("登录失败，未知错误，可能是需要手机验证码，请先尝试手动登录")
                 return None
-            if errorMsg == '无效的验证码':
+            if errorMsg == "无效的验证码":
                 if trytimes >= 5:
-                    print('登录失败，验证码识别错误次数过多')
+                    print("登录失败，验证码识别错误次数过多")
                     return None
-                print('登录失败，验证码识别错误，正在重试')
+                print("登录失败，验证码识别错误，正在重试")
                 return self.login(dest, trytimes + 1)
             else:
-                print('登录失败，' + errorMsg)
+                print("登录失败，" + errorMsg)
             return None
         self.response = res
         return self.session

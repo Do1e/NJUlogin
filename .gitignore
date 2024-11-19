@@ -4,4 +4,5 @@ dist
 *.png
 *.egg-info
 scripts
-test
+.venv
+poetry.lock

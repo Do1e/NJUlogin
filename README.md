@@ -4,11 +4,7 @@
 
 ## 安装
 ```bash
-python setup.py install
-```
-或者
-```bash
-pip install NJUlogin
+pip install NJUlogin -i https://mirror.nju.edu.cn/pypi/web/simple
 ```
 
 ## 使用
