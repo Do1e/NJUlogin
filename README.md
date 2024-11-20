@@ -7,7 +7,9 @@
 pip install NJUlogin -i https://mirror.nju.edu.cn/pypi/web/simple
 ```
 
-注：由于使用了新的打包方式以及一些其他原因，python依赖调整为`python>=3.10,<4.0`，并且在pypi上删除所有旧版包，要安装旧版可以克隆[Github仓库](https://github.com/Do1e/NJUlogin)并且checkout到对应tag的分支后使用`pip install .`安装。
+注：由于使用了新的打包方式以及一些其他原因，自v3.3起，python依赖调整为`python>=3.10,<4.0`，并且在pypi上删除所有旧版包。安装旧版方法(二选一)：
+* 从[Github releases](https://github.com/Do1e/NJUlogin/releases)中下载对应版本的`.whl`文件并`pip install xxx.whl`
+* 克隆[Github仓库](https://github.com/Do1e/NJUlogin.git)并且checkout到对应tag的分支后使用`pip install .`安装。
 
 ## 使用
 * 包含三种登录方法，**扫码登录**、**账号密码登录**、**加载cookies登录**，使用方法见[demos](demos/)文件夹
