@@ -52,6 +52,10 @@ class QR(object):
                 print(" ", end="")
         print("")
 
+    def __del__(self):
+        """清理二维码图片"""
+        if os.path.exists("QR.png"):
+            os.remove("QR.png")
 
 class QRlogin(baseLogin):
     def __init__(self, loginTimeout: int = config.loginTimeout, *args, **kwargs):
@@ -114,6 +118,5 @@ class QRlogin(baseLogin):
         if self.judge_not_login(res, url):
             print("登录失败")
             return None
-        os.remove("QR.png")
         self.response = res
         return self.session
