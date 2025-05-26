@@ -15,6 +15,9 @@ dependencies = [
     "cryptography>=43.0.3,<44.0.0",
 ]
 
+[project.scripts]
+NJUlogin = "NJUlogin.__main__:main"
+
 [tool.poetry]
 name = "NJUlogin"
 version = "0.0.0"
@@ -54,6 +57,9 @@ priority = "primary"
 black = "^24.10.0"
 pytest = "^8.3.3"
 poetry-dynamic-versioning = {extras = ["plugin"], version = "^1.4.1"}
+
+[tool.poetry.scripts]
+NJUlogin = "NJUlogin.__main__:main"
 
 [tool.poetry-dynamic-versioning]
 enable = true
