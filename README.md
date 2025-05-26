@@ -46,19 +46,19 @@ uvx NJUlogin -h
 ```
 
 ```
-usage: NJUlogin [-h] [-l loginlib] [-u username] [-w password] [-i] [-o] [-p]
+usage: NJUlogin [-h] [-l loginlib] [-i] [-o] [-k online_id] [-p] [-a name] [-d device_id]
 
 options:
   -h, --help            show this help message and exit
   -l, --loginlib loginlib
-                        login library, QRlogin or pwdLogin, default is QRlogin
-  -u, --username username
-                        username, only used when loginlib is pwdLogin
-  -w, --password password
-                        password, only used when loginlib is pwdLogin
-  -i, --login           login
-  -o, --logout          logout
-  -p, --printinfo       print info
+                        登录库，QRlogin或pwdLogin，默认为QRlogin
+  -i, --login           登录
+  -o, --logout          登出
+  -k, --kick online_id  登出指定在线设备，使用`-p`可获取online_id
+  -p, --printinfo       打印信息
+  -a, --add name        添加当前设备为无感认证设备，name为设备名称
+  -d, --delete device_id
+                        删除无感认证设备，指定设备ID，使用`-p`可获取device_id
 ```
 
 ## 补充
