@@ -8,7 +8,6 @@ from lxml import etree
 from user_agents import parse
 
 from .utils import config, urls, get_post
-from .utils.clear import clear
 from .base import baseLogin
 
 
@@ -96,10 +95,8 @@ class QRlogin(baseLogin):
                 print("扫描成功，请在手机上『确认登录』")
                 first2 = True
             elif status == 1:
-                clear()
                 return True
             time.sleep(1)
-        clear()
         print("登录超时")
         return False
 
@@ -110,7 +107,6 @@ class QRlogin(baseLogin):
             url = urls.login.split("?")[0]
         html = self.get(url, timeout=self.getTimeout).text
         qr = QR(self.session, self.getTimeout)
-        clear()
         qr.printQR()
         if not self.waitingLogin(qr):
             return None
