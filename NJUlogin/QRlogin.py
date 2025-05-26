@@ -12,18 +12,18 @@ from .base import baseLogin
 
 
 class QR(object):
-    def __init__(self, session: requests.Session, getTimeout: int):
+    def __init__(self, session: requests.Session, timeout: int):
         self.session = session
-        self.getTimeout = getTimeout
+        self.timeout = timeout
 
     def getQR(self) -> np.ndarray:
         """获取二维码图片，返回numpy数组"""
         self.ts = int(time.time() * 1000)
         url = urls.QRid % self.ts
-        QRid = get_post.get(self.session, url, timeout=self.getTimeout).text
+        QRid = get_post.get(self.session, url, timeout=self.timeout).text
         self.QRid = QRid
         url = urls.QRimg % QRid
-        QRdata = get_post.get(self.session, url, timeout=self.getTimeout).content
+        QRdata = get_post.get(self.session, url, timeout=self.timeout).content
         qr = Image.open(BytesIO(QRdata)).convert("L")
         return np.array(qr)[6:-6, 6:-6]
 
@@ -55,17 +55,7 @@ class QR(object):
 
 class QRlogin(baseLogin):
     def __init__(self, loginTimeout: int = config.loginTimeout, *args, **kwargs):
-        """
-        QRlogin(loginTimeout: int = config.loginTimeout, headers: dict = config.headers, getTimeout: int = config.getTimeout)
-        @description:
-        二维码登录
-        -------
-        @param:
-        loginTimeout: int, 登录超时时间，即二维码有效时间
-        headers: dict, 请求头
-        getTimeout: int, 请求超时时间，即在getTimeout秒内未获取到响应则抛出TimeoutError
-        -------
-        """
+        """二维码登录"""
         super().__init__(*args, **kwargs)
         assert parse(self.session.headers["User-Agent"]).is_pc, "扫码登录只支持PC端"
         self.loginTimeout = loginTimeout
@@ -73,7 +63,7 @@ class QRlogin(baseLogin):
     def getStatus(self, qr: QR) -> str:
         """等候扫码，返回扫码状态"""
         url = urls.status % (qr.ts, qr.QRid)
-        status = self.get(url, timeout=self.getTimeout).text
+        status = self.get(url).text
         return status
 
     def waitingLogin(self, qr: QR) -> bool:
@@ -105,8 +95,8 @@ class QRlogin(baseLogin):
             url = urls.login % dest
         else:
             url = urls.login.split("?")[0]
-        html = self.get(url, timeout=self.getTimeout).text
-        qr = QR(self.session, self.getTimeout)
+        html = self.get(url).text
+        qr = QR(self.session, self.timeout)
         qr.printQR()
         if not self.waitingLogin(qr):
             return None
@@ -120,7 +110,7 @@ class QRlogin(baseLogin):
             "_eventId": selector.xpath('//input[@name="_eventId"]/@value')[1],
             "rmShown": selector.xpath('//input[@name="rmShown"]/@value')[1],
         }
-        res = self.post(url, data=data, timeout=self.getTimeout)
+        res = self.post(url, data=data)
         if self.judge_not_login(res, url):
             print("登录失败")
             return None

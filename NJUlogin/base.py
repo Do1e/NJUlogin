@@ -13,17 +13,16 @@ from .utils import config, get_post, urls
 
 class baseLogin(object):
     def __init__(
-        self, headers: dict = config.headers, getTimeout: int = config.getTimeout
-    ):
+        self, headers: dict = config.headers, timeout: int = config.timeout):
         self.session = requests.Session()
         self.session.headers.update(headers)
-        self.getTimeout = getTimeout
+        self.timeout = timeout
 
     def get(self, url: str, **kwargs) -> requests.Response:
-        return get_post.get(self.session, url, **kwargs)
+        return get_post.get(self.session, url, timeout=self.timeout, **kwargs)
 
     def post(self, url: str, data: dict, **kwargs) -> requests.Response:
-        return get_post.post(self.session, url, data, **kwargs)
+        return get_post.post(self.session, url, data, timeout=self.timeout, **kwargs)
 
     def judge_not_login(self, html: requests.Response, loginurl: str) -> bool:
         """判断是否登录成功"""
@@ -33,11 +32,11 @@ class baseLogin(object):
 
     def logout(self) -> None:
         """退出登录"""
-        self.get(urls.logout, timeout=self.getTimeout)
+        self.get(urls.logout)
 
     def logout_all(self) -> None:
         """退出所有设备的登录"""
-        html = self.get(urls.onlineList, timeout=self.getTimeout)
+        html = self.get(urls.onlineList)
         selector = etree.HTML(html.text)
         OnlineList = selector.xpath('//input[@value="踢出"]/@onclick')
         for item in OnlineList:
@@ -47,7 +46,7 @@ class baseLogin(object):
     @property
     def available(self) -> bool:
         """判断是否登录成功"""
-        html = self.get(urls.index, timeout=self.getTimeout)
+        html = self.get(urls.index)
         return html.url == urls.index
 
     def export(self, filename: str, password: str = None) -> None:

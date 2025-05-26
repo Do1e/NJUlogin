@@ -14,18 +14,7 @@ from .base import baseLogin
 
 class pwdLogin(baseLogin):
     def __init__(self, username: str, password: str, *args, **kwargs):
-        """
-        pwdLogin(username: str, password: str, headers: dict = config.headers, getTimeout: int = config.getTimeout)
-        @description:
-        账号密码登录
-        -------
-        @param:
-        username: str, 账号
-        password: str, 密码
-        headers: dict, 请求头
-        getTimeout: int, 请求超时时间，即在getTimeout秒内未获取到响应则抛出TimeoutError
-        -------
-        """
+        """账号密码登录"""
         super().__init__(*args, **kwargs)
         self.username = username
         self.password = password
@@ -33,7 +22,7 @@ class pwdLogin(baseLogin):
     def getCaptcha(self) -> str:
         """获取验证码"""
         ms = int(time.time() * 1000) % 1000
-        captcha = self.get(urls.captcha % ms, timeout=self.getTimeout).content
+        captcha = self.get(urls.captcha % ms).content
         ocr = CaptchaOCR()
         return ocr.get_text(captcha)
 
@@ -61,7 +50,7 @@ class pwdLogin(baseLogin):
             url = urls.login % dest
         else:
             url = urls.login.split("?")[0]
-        html = self.get(url, timeout=self.getTimeout).text
+        html = self.get(url).text
         captcha = self.getCaptcha()
         selector = etree.HTML(html)
         password = self.pwdEncrypt(self.get_pwdDefaultEncryptSalt(selector))
@@ -76,7 +65,7 @@ class pwdLogin(baseLogin):
             "_eventId": selector.xpath('//input[@name="_eventId"]/@value')[0],
             "rmShown": selector.xpath('//input[@name="rmShown"]/@value')[0],
         }
-        res = self.post(url, data=data, timeout=self.getTimeout)
+        res = self.post(url, data=data)
         if self.judge_not_login(res, url):
             # print('登录失败')
             selector = etree.HTML(res.text)
