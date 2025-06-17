@@ -5,7 +5,6 @@ from PIL import Image
 from io import BytesIO
 import os
 from lxml import etree
-from user_agents import parse
 
 from .utils import config, urls, get_post
 from .base import baseLogin
@@ -61,7 +60,6 @@ class QRlogin(baseLogin):
     def __init__(self, loginTimeout: int = config.loginTimeout, *args, **kwargs):
         """二维码登录"""
         super().__init__(*args, **kwargs)
-        assert parse(self.session.headers["User-Agent"]).is_pc, "扫码登录只支持PC端"
         self.loginTimeout = loginTimeout
 
     def getStatus(self, qr: QR) -> str:

@@ -5,4 +5,3 @@ dist
 *.egg-info
 scripts
 .venv
-poetry.lock

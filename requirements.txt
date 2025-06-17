@@ -3,6 +3,5 @@ Pillow
 numpy
 lxml
 pycryptodome
-user_agents
 onnxruntime
 cryptography
