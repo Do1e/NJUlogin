@@ -1,15 +1,44 @@
 # NJUlogin
 
-* 南京大学统一身份认证登录模块，可用于登录校园各种网站，[Github link](https://github.com/Do1e/NJUlogin)，[PyPI link](https://pypi.org/project/NJUlogin/)。
+* 南京大学统一身份认证登录模块，可用于登录校园各种网站。
+
+[![GitHub](https://img.shields.io/badge/GitHub-Do1e%2FNJUlogin-blue)](https://github.com/Do1e/NJUlogin)
+[![PyPI](https://img.shields.io/badge/PyPI-NJUlogin-blue)](https://pypi.org/project/NJUlogin/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/license/MIT)
 
 ## 安装
-```bash
-pip install NJUlogin -i https://mirror.nju.edu.cn/pypi/web/simple
-```
 
 注：由于使用了新的打包方式以及一些其他原因，自v3.3起，python依赖调整为`python>=3.10,<4.0`，并且在pypi上删除所有旧版包。安装旧版方法(二选一)：
 * 从[Github releases](https://github.com/Do1e/NJUlogin/releases)中下载对应版本的`.whl`文件并`pip install xxx.whl`
 * 克隆[Github仓库](https://github.com/Do1e/NJUlogin.git)并且checkout到对应tag的分支后使用`pip install .`安装。
+
+### 从 PyPI 安装（推荐）
+
+```bash
+pip install NJUlogin
+```
+
+### 从源码安装
+
+```bash
+git clone https://github.com/Do1e/NJUlogin.git
+cd NJUlogin
+pip install .
+# Or `pip install -e .` for editable mode
+```
+
+或者使用 poetry：
+
+```bash
+poetry install
+```
+
+### aur
+如果你使用 Arch Linux 或基于 Arch 的发行版，可以通过 AUR 安装：
+
+```bash
+yay -S python-njulogin
+```
 
 ## 使用
 * 包含三种登录方法，**扫码登录**、**账号密码登录**、**加载cookies登录**，使用方法见[demos](demos/)文件夹
@@ -20,7 +49,7 @@ pip install NJUlogin -i https://mirror.nju.edu.cn/pypi/web/simple
 * **账号密码登录**：使用账号密码作为参数构造`pwdLogin`对象即可调用`login`方法进行登录。
 * **加载cookies登录**：构造`baseLogin`对象即可调用`load`方法加载cookies，cookies需要通过上述两种登录方式后使用`export`方法导出为文件。`load`和`export`方法可以设置保存文件的密码防止泄露。
 * `login`方法需要传入登录的目的网址，比如`https://p.nju.edu.cn/api/cas/getinfo`表示登录到校园网，返回的网页会保存在`self.response`中。目的网址也可以留空。
-* 目的网址获取方法（举一反三即可）：打开浏览器输入`p.nju.edu.cn`，会发现自动跳转到`https://authserver.nju.edu.cn/authserver/login?service=https://p.nju.edu.cn/api/cas/getinfo`，即为`service=`后面的内容，。
+* 目的网址获取方法（举一反三即可）：打开浏览器输入`p.nju.edu.cn`，会发现自动跳转到`https://authserver.nju.edu.cn/authserver/login?service=https://p.nju.edu.cn/api/cas/getinfo`，即为`service=`后面的内容。
 * 返回值`session`记录了登录状态，之后即可使用`requests`中的方法进行进一步的操作，也可以使用构造出的对象调用`get`或`post`方法。（具体能有什么操作就看各位的创意了，也可以查看[我的示例](https://github.com/Do1e/p-dot-nju-login)）
 
 <br>
@@ -32,8 +61,8 @@ pip install NJUlogin -i https://mirror.nju.edu.cn/pypi/web/simple
   * `logout(self)`：退出登录
   * `logout_all(self)`：退出所有设备的登录
   * `available`：判断是否登录成功
-  * `export(self, filename: str, password: str = None)`：导出cookies
-  * `load(self, filename: str, password: str = None)`：加载cookies
+  * `export(self, filename: str, password: str = None)`：导出cookies，推荐在公用机器上使用环境变量设置文件密码
+  * `load(self, filename: str, password: str = None)`：加载cookies，推荐在公用机器上使用环境变量设置文件密码
 
 <br>
 
@@ -66,3 +95,13 @@ options:
 
 ## 致谢
 * 验证码识别代码来自[sml2h3/ddddocr](https://github.com/sml2h3/ddddocr)
+
+## 开源许可
+
+本项目采用 [MIT](LICENSE) 开源许可证。
+
+## 免责声明
+
+* 本项目仅供学习交流使用，不得用于商业用途，如有侵权请联系删除
+* 用户使用本项目所产生的任何后果，需自行承担风险
+* 开发者不对使用本项目产生的任何直接或间接损失负责
