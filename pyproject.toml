@@ -19,7 +19,7 @@ NJUlogin = "NJUlogin.__main__:main"
 
 [tool.poetry]
 name = "NJUlogin"
-version = "3.4.0.post2.dev0+b6743b7"
+version = "0.0.0"
 description = "The Nanjing University login module, which can be used to login to the various campus web sites"
 authors = ["Do1e <dpj.email@qq.com>"]
 license = "MIT"
@@ -60,7 +60,7 @@ poetry-dynamic-versioning = {extras = ["plugin"], version = "^1.4.1"}
 NJUlogin = "NJUlogin.__main__:main"
 
 [tool.poetry-dynamic-versioning]
-enable = false
+enable = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
