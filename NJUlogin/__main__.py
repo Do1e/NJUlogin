@@ -106,6 +106,8 @@ def _print_used_time():
                 print('获取用户信息失败:', data['reply_msg'])
                 return
             service_id = data['results']['service'][0]['id']
+            name = data['results']['service'][0]['name']
+            description = data['results']['service'][0]['description']
         else:
             print('获取service_id失败，状态码:', res.status_code)
             return
@@ -113,6 +115,7 @@ def _print_used_time():
         print('获取service_id失败:', str(e))
         return
 
+    print(f'{name} ({service_id})\n{description}')
     month = int(time.strftime('%m', time.localtime()))
     ts = int(time.time() * 1000)
     try:
