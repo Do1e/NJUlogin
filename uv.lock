@@ -297,7 +297,7 @@ wheels = [
 
 [[package]]
 name = "njulogin"
-version = "3.4.2"
+version = "3.4.3"
 source = { editable = "." }
 dependencies = [
     { name = "cryptography" },
@@ -311,13 +311,13 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cryptography", specifier = ">=43.0.3,<44.0.0" },
-    { name = "lxml", specifier = ">=5.3.0,<6.0.0" },
-    { name = "numpy", specifier = ">=2.1.3,<3.0.0" },
-    { name = "onnxruntime", specifier = ">=1.20.0,<2.0.0" },
-    { name = "pillow", specifier = ">=11.0.0,<12.0.0" },
-    { name = "pycryptodome", specifier = ">=3.21.0,<4.0.0" },
-    { name = "requests", specifier = ">=2.32.3,<3.0.0" },
+    { name = "cryptography", specifier = ">=43.0.0" },
+    { name = "lxml", specifier = ">=5.3.0" },
+    { name = "numpy", specifier = ">=2.0.0" },
+    { name = "onnxruntime", specifier = ">=1.20.0" },
+    { name = "pillow", specifier = ">=11.0.0" },
+    { name = "pycryptodome", specifier = ">=3.21.0" },
+    { name = "requests", specifier = ">=2.32.0" },
 ]
 
 [[package]]
