@@ -17,7 +17,7 @@ pwdlogin = pwdLogin(username, password)
 session = pwdlogin.login(dest)
 
 url = 'https://p.nju.edu.cn/api/portal/v1/getinfo?_=%d' % int(time.time() * 1000)
-res = pwdlogin.get(url, timeout=5)
+res = pwdlogin.get(url)
 # or:
 # res = session.get(url, timeout=5)
 data = json.loads(res.text)
