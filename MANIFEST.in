@@ -1,1 +1,1 @@
-include NJUlogin/captchaOCR/common.onnx
+include NJUlogin/captchaOCR/nju_captcha.onnx

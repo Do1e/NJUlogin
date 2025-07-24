@@ -14,42 +14,10 @@ class CaptchaOCR:
     def __init__(
         self,
         gpu_id: int = -1,
-        use_import_onnx: bool = False,
-        import_onnx_path: Optional[Union[str, pathlib.PurePath]] = None,
-        charsets_path: Optional[Union[str, pathlib.PurePath]] = None,
     ):
-        self.use_import_onnx = use_import_onnx
-        if self.use_import_onnx:
-            if import_onnx_path is None:
-                raise ValueError(
-                    "import_onnx_path must be specified when use_import_onnx is True"
-                )
-            if not isinstance(import_onnx_path, (str, pathlib.PurePath)):
-                raise TypeError("import_onnx_path must be str or pathlib.PurePath")
-            if charsets_path is None:
-                raise ValueError(
-                    "charsets_path must be specified when use_import_onnx is True"
-                )
-            if not isinstance(charsets_path, (str, pathlib.PurePath)):
-                raise TypeError("charsets_path must be str or pathlib.PurePath")
-            with open(charsets_path, "r", encoding="utf-8") as fp:
-                info = json.load(fp)
-            self.charset = info["charset"]
-            self.word = info["word"]
-            self.resize = info["image"]
-            self.channel = info["channel"]
-            if len(self.resize) != 2:
-                raise ValueError("image must be a list of 2 elements")
-            if self.channel not in (1, 3):
-                raise ValueError("channel must be 1 or 3")
-        else:
-            from .charsets import charset
-
-            import_onnx_path = osp.join(osp.dirname(__file__), "common.onnx")
-            self.charset = charset
-            self.word = False
-            self.resize = (-1, 64)
-            self.channel = 1
+        import_onnx_path = osp.join(osp.dirname(__file__), 'nju_captcha.onnx')
+        self.charset = ['1', '2', '3', '4', '5', '6', '7', '8', 'a', 'b', 'c', 'd', 'e', 'f', 'h', 'k', 'n', 'p', 'q', 'x', 'y', 'z']
+        self.resize = (176, 64)
         if gpu_id >= 0:
             providers = [
                 (
@@ -87,48 +55,18 @@ class CaptchaOCR:
                 "img must be bytes, str, pathlib.PurePath or PIL.Image.Image"
             )
 
-        if self.resize[0] == -1:
-            if self.word:
-                size = (int(self.resize[1]), int(self.resize[1]))
-            else:
-                size = (
-                    int(image.size[0] * self.resize[1] / image.size[1]),
-                    int(self.resize[1]),
-                )
-        else:
-            size = (int(self.resize[0]), int(self.resize[1]))
-        image = image.resize(size, Image.LANCZOS)
-        if self.channel == 1:
-            image = image.convert("L")
-        else:
-            image = image.convert("RGB")
+        image = image.resize(self.resize, Image.LANCZOS)
+        image = image.convert("RGB")
 
         image = np.array(image, dtype=np.float32) / 255.0
         image = np.expand_dims(image, axis=0)
-        if not self.use_import_onnx:
-            image = (image - 0.5) / 0.5
-        else:
-            if self.channel == 1:
-                image = (image - 0.456) / 0.224
-            else:
-                image = (image - np.array([0.485, 0.456, 0.406])) / np.array(
-                    [0.229, 0.224, 0.225]
-                )
-                image = image[0]
-                image = image.transpose((2, 0, 1))
-
-        ort_inputs = {"input1": np.array([image]).astype(np.float32)}
+        image = (image - np.array([0.743, 0.7432, 0.7431], dtype=np.float32)) / np.array([0.1917, 0.1918, 0.1917], dtype=np.float32)
+        image = np.transpose(image, (0, 3, 1, 2))
+        image = image.astype(np.float32)
+        ort_inputs = {'input': image}
         ort_outs = self.ort_session.run(None, ort_inputs)
-        result = []
-        last_item = 0
-        if self.word:
-            for item in ort_outs[1]:
-                result.append(self.charset[item])
-        else:
-            for item in ort_outs[0][0]:
-                if item == last_item:
-                    continue
-                if item != 0:
-                    result.append(self.charset[item])
-                last_item = item
-        return "".join(result)
+        output = ort_outs[0]
+        output = np.argmax(output, axis=2)
+        output = output[0].tolist()
+        text = ''.join([self.charset[i] for i in output])
+        return text
