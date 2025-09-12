@@ -41,6 +41,9 @@ yay -S python-njulogin
 ```
 
 ## 使用
+
+### 代码调用
+
 * 包含三种登录方法，**扫码登录**、**账号密码登录**、**加载cookies登录**，使用方法见[demos](demos/)文件夹
 
 </br>
@@ -64,7 +67,7 @@ yay -S python-njulogin
   * `export(self, filename: str, password: str = None)`：导出cookies，推荐在公用机器上使用环境变量设置文件密码
   * `load(self, filename: str, password: str = None)`：加载cookies，推荐在公用机器上使用环境变量设置文件密码
 
-<br>
+### cli登录p.nju
 
 v3.4起集成了 https://p.nju.edu.cn 的登录客户端，使用方法如下：
 ```bash
