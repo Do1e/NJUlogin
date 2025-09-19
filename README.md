@@ -69,6 +69,15 @@ yay -S python-njulogin
 
 ### cli登录p.nju
 
+使用`curl`命令可以简洁实现：
+
+```bash
+# 登录
+curl https://p.nju.edu.cn/api/portal/v1/login -X POST -d '{"username":"学号", "password":"密码"}'
+# 登出
+curl https://p.nju.edu.cn/api/portal/v1/logout -X POST -d '{}'
+```
+
 v3.4起集成了 https://p.nju.edu.cn 的登录客户端，使用方法如下：
 ```bash
 # 安装后
