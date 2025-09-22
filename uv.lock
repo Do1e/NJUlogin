@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10, <4.0"
 
 [[package]]
@@ -297,7 +297,7 @@ wheels = [
 
 [[package]]
 name = "njulogin"
-version = "3.5.0"
+version = "3.5.1"
 source = { editable = "." }
 dependencies = [
     { name = "cryptography" },
