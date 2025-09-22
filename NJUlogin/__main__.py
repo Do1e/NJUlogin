@@ -1,6 +1,7 @@
 import argparse
 import getpass
 import json
+import os
 import time
 import requests
 from lxml import etree
@@ -232,8 +233,12 @@ def main():
     if args.loginlib == 'QRlogin':
         loginlib = QRlogin()
     elif args.loginlib == 'pwdLogin':
-        username = input('请输入用户名: ').strip()
-        password = getpass.getpass('请输入密码: ').strip()
+        username = os.getenv('NJU_USERNAME')
+        if username is None:
+            username = input('请输入用户名: ').strip()
+        password = os.getenv('NJU_PASSWORD')
+        if password is None:
+            password = getpass.getpass('请输入密码: ').strip()
         loginlib = pwdLogin(username, password)
     else:
         raise ValueError('不支持的登录库，请选择 QRlogin 或 pwdLogin')
