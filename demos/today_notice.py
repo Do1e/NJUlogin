@@ -1,11 +1,12 @@
-import sys
-sys.path.append('.')
+import getpass
 import re
 import time
 from urllib import parse
-from bs4 import BeautifulSoup
+
+from lxml.html import fromstring
+
 from NJUlogin import pwdLogin
-import getpass
+
 
 username = input("请输入用户名：")
 password = getpass.getpass("请输入密码：")
@@ -64,7 +65,7 @@ for notice in notices:
         response = pwdsession.post(detail_url, data=data, headers=headers)
         html = response.json()['data']['GG_DATA']['GGNR']
         html = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>' + html + '</body></html>'
-        full_text = BeautifulSoup(html, 'html.parser').get_text()
+        full_text = fromstring(html).text_content()
         full_text = full_text.replace('\xa0', ' ')
         full_text = re.sub(r' {2,}', '\n', full_text).strip()
     else:

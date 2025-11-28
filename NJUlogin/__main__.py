@@ -3,12 +3,14 @@ import getpass
 import json
 import os
 import time
+
 import requests
 from lxml import etree
 
 from .pwdLogin import pwdLogin
 from .QRlogin import QRlogin
 from .utils import config
+
 
 destURL = 'https://p.nju.edu.cn:443/api/cas/getinfo/&renew=true'
 testURL = 'https://ipapi.do1e.cn/'

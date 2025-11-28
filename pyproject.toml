@@ -1,7 +1,8 @@
 [project]
 name = "NJUlogin"
-version = "3.5.1"
+version = "3.6.0"
 description = "The Nanjing University login module, which can be used to login to the various campus web sites"
+authors = [{ name = "Do1e", email = "i@do1e.cn" }]
 readme = "README.md"
 requires-python = ">=3.10,<4.0"
 dependencies = [
@@ -13,55 +14,53 @@ dependencies = [
     "onnxruntime>=1.20.0",
     "cryptography>=43.0.0",
 ]
-
-[project.scripts]
-NJUlogin = "NJUlogin.__main__:main"
-
-[tool.poetry]
-name = "NJUlogin"
-version = "0.0.0"
-description = "The Nanjing University login module, which can be used to login to the various campus web sites"
-authors = ["Do1e <dpj.email@qq.com>"]
-license = "MIT"
-readme = "README.md"
-homepage = "https://github.com/Do1e/NJUlogin"
-repository = "https://github.com/Do1e/NJUlogin"
-packages = [
-    {include = "NJUlogin"}
-]
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-requests = ">=2.32.0"
-pillow = ">=11.0.0"
-numpy = ">=2.0.0"
-lxml = ">=5.3.0"
-pycryptodome = ">=3.21.0"
-onnxruntime = ">=1.20.0"
-cryptography = ">=43.0.0"
 
-[[tool.poetry.source]]
-name = "njumirror"
-url = "https://mirror.nju.edu.cn/pypi/web/simple"
-priority = "primary"
-
-
-[tool.poetry.group.dev.dependencies]
-black = "^24.10.0"
-pytest = "^8.3.3"
-poetry-dynamic-versioning = {extras = ["plugin"], version = "^1.4.1"}
-
-[tool.poetry.scripts]
+[project.scripts]
 NJUlogin = "NJUlogin.__main__:main"
 
-[tool.poetry-dynamic-versioning]
-enable = true
+[tool.setuptools.packages.find]
+include = ["NJUlogin"]
+
+[project.urls]
+Homepage = "https://github.com/Do1e/NJUlogin"
+Repository = "https://github.com/Do1e/NJUlogin"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.3.0",
+    "ruff>=0.14.6",
+]
+
+[[tool.uv.index]]
+url = "https://mirror.nju.edu.cn/pypi/web/simple"
+publish-url = "https://upload.pypi.org/legacy/"
+default = true
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = ["C901", "E501", "E721", "E741", "F402", "F823"]
+select = ["C", "E", "F", "I", "W"]
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
-build-backend = "poetry_dynamic_versioning.backend"
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+package = true

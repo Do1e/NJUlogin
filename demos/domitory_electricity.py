@@ -1,9 +1,10 @@
-import sys
-sys.path.append('.')
-from lxml import etree
-from urllib import parse
-from NJUlogin import pwdLogin
 import getpass
+from urllib import parse
+
+from lxml import etree
+
+from NJUlogin import pwdLogin
+
 
 username = input("请输入用户名：")
 password = getpass.getpass("请输入密码：")
@@ -24,7 +25,7 @@ def get_campus_id(pwdsession, token, campus_name):
         if item["elcname"][2:] == '电控' and item["elcname"][:2] == campus_name[:2]:
             campus_id = item["elcsysid"]
             break
-    assert campus_id, f"未找到校区id"
+    assert campus_id, "未找到校区id"
     return campus_id
 
 def get_area_id(pwdsession, token, campus_id):
@@ -116,7 +117,7 @@ if __name__ == "__main__":
         print(f"{i + 1}: {campus_name}")
     try:
         campus_name = campus_names[int(input("请选择校区: ")) - 1]
-    except:
+    except Exception:
         print("输入错误")
         exit(1)
 
@@ -137,7 +138,7 @@ if __name__ == "__main__":
     try:
         input_id = input("请选择楼栋: ")
         building_id, building_name = building_list[int(input_id) - 1]
-    except:
+    except Exception:
         print("输入错误")
         exit(1)
 
@@ -165,7 +166,7 @@ if __name__ == "__main__":
             room_name = input_id
         else:
             room_id, room_name = room_list[int(input_id) - 1]
-    except:
+    except Exception:
         print("输入错误")
         exit(1)
 

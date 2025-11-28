@@ -1,15 +1,16 @@
-import requests
-from lxml import etree
 import random
 import re
 import time
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad
 from base64 import b64encode
 
+import requests
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+from lxml import etree
+
+from .base import baseLogin
 from .captchaOCR import CaptchaOCR
 from .utils import urls
-from .base import baseLogin
 
 
 class pwdLogin(baseLogin):

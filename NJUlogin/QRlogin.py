@@ -1,13 +1,14 @@
-import requests
-import numpy as np
-import time
-from PIL import Image
-from io import BytesIO
 import os
-from lxml import etree
+import time
+from io import BytesIO
 
-from .utils import config, urls, get_post
+import numpy as np
+import requests
+from lxml import etree
+from PIL import Image
+
 from .base import baseLogin
+from .utils import config, get_post, urls
 
 
 class QR(object):

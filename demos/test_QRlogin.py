@@ -1,8 +1,8 @@
-import time, json
+import json
+import time
 
-import sys
-sys.path.append('.')
 from NJUlogin import QRlogin
+
 
 dest = 'https://p.nju.edu.cn:443/api/cas/getinfo/&renew=true'
 qrlogin = QRlogin()

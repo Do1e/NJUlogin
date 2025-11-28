@@ -1,8 +1,8 @@
-from typing import Union, Optional
 import io
-import json
 import os.path as osp
 import pathlib
+from typing import Union
+
 import numpy as np
 import onnxruntime
 from PIL import Image
