@@ -20,7 +20,8 @@ class QR(object):
         """获取二维码图片，返回numpy数组"""
         self.ts = int(time.time() * 1000)
         url = urls.QRid % self.ts
-        QRid = get_post.get(self.session, url, timeout=self.timeout).text
+        QRid = get_post.get(self.session, url, timeout=self.timeout,
+                            params={"uuid": ""}).text
         self.QRid = QRid
         url = urls.QRimg % QRid
         QRdata = get_post.get(self.session, url, timeout=self.timeout).content
@@ -65,19 +66,19 @@ class QRlogin(baseLogin):
 
     def getStatus(self, qr: QR) -> str:
         """等候扫码，返回扫码状态"""
-        url = urls.status % (qr.ts, qr.QRid)
-        status = self.get(url).text
+        url = urls.status % int(time.time() * 1000)
+        status = self.get(url, params={"uuid": qr.QRid}).text
         return status
 
     def waitingLogin(self, qr: QR) -> bool:
         """等候登录，返回登录状态"""
-        # 0: 未扫码, 1: 登录成功, 2: 已扫码未确认登录
+        # 0: 未扫码, 1: 登录成功, 2: 已扫码未确认登录, 3: 二维码失效
         first0, first2 = False, False
         for _ in range(self.loginTimeout):
             status = self.getStatus(qr)
             try:
                 status = int(status)
-                if status not in [0, 1, 2]:
+                if status not in [0, 1, 2, 3]:
                     raise ValueError
             except ValueError:
                 raise ValueError("未知状态，代码可能需要维护")
@@ -89,6 +90,9 @@ class QRlogin(baseLogin):
                 first2 = True
             elif status == 1:
                 return True
+            elif status == 3:
+                print("二维码已失效")
+                return False
             time.sleep(1)
         print("登录超时")
         return False
@@ -105,13 +109,18 @@ class QRlogin(baseLogin):
             return None
 
         selector = etree.HTML(html)
+        def get_field(name):
+            vals = selector.xpath(f'//input[@name="{name}"]/@value')
+            return vals[0] if vals else ""
+
         data = {
-            "lt": selector.xpath('//input[@name="lt"]/@value')[1],
+            "lt": get_field("lt"),
             "uuid": qr.QRid,
-            "dllt": selector.xpath('//input[@name="dllt"]/@value')[1],
-            "execution": selector.xpath('//input[@name="execution"]/@value')[1],
-            "_eventId": selector.xpath('//input[@name="_eventId"]/@value')[1],
-            "rmShown": selector.xpath('//input[@name="rmShown"]/@value')[1],
+            "cllt": "qrLogin",
+            "dllt": get_field("dllt"),
+            "execution": get_field("execution"),
+            "_eventId": get_field("_eventId"),
+            "rmShown": get_field("rmShown"),
         }
         res = self.post(url, data=data)
         if self.judge_not_login(res, url):
