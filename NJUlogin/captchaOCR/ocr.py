@@ -16,8 +16,8 @@ class CaptchaOCR:
         gpu_id: int = -1,
     ):
         import_onnx_path = osp.join(osp.dirname(__file__), 'nju_captcha.onnx')
-        self.charset = ['1', '2', '3', '4', '5', '6', '7', '8', 'a', 'b', 'c', 'd', 'e', 'f', 'h', 'k', 'n', 'p', 'q', 'x', 'y', 'z']
-        self.resize = (176, 64)
+        self.charset = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+        self.resize = (80, 30)
         if gpu_id >= 0:
             providers = [
                 (
@@ -60,7 +60,7 @@ class CaptchaOCR:
 
         image = np.array(image, dtype=np.float32) / 255.0
         image = np.expand_dims(image, axis=0)
-        image = (image - np.array([0.743, 0.7432, 0.7431], dtype=np.float32)) / np.array([0.1917, 0.1918, 0.1917], dtype=np.float32)
+        image = (image - np.array([0.7336, 0.745, 0.778], dtype=np.float32)) / np.array([0.3062, 0.31, 0.3177], dtype=np.float32)
         image = np.transpose(image, (0, 3, 1, 2))
         image = image.astype(np.float32)
         ort_inputs = {'input': image}
