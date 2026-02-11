@@ -25,13 +25,6 @@ class pwdLogin(baseLogin):
         captcha = self.get(urls.captcha % ms).content
         ocr = CaptchaOCR()
         return ocr.get_text(captcha)
-        """
-        以下代码调试用，展示验证码图片手动填写
-        from PIL import Image
-        import io
-        Image.open(io.BytesIO(captcha)).show()
-        return input("请输入验证码: ").strip()
-        """
 
     def get_pwdDefaultEncryptSalt(self, selector: etree._Element) -> str:
         """获取密码加密盐"""
