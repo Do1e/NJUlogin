@@ -1,13 +1,14 @@
 import base64
 import json
 import os
+import random
+import time
 
 import requests
 from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from lxml import etree
 
 from .utils import config, get_post, urls
 
@@ -37,12 +38,15 @@ class baseLogin(object):
 
     def logout_all(self) -> None:
         """退出所有设备的登录"""
-        html = self.get(urls.onlineList)
-        selector = etree.HTML(html.text)
-        OnlineList = selector.xpath('//input[@value="踢出"]/@onclick')
-        for item in OnlineList:
-            tokenId = item.split("'")[1]
-            self.post(urls.logoutOthers, data={"tokenId": tokenId})
+        ts = int(time.time() * 1000)
+        try:
+            data = self.get(urls.onlineList % ts).json()
+            onlineList = data["datas"]["userOnline"]
+        except Exception:
+            return
+        for item in onlineList:
+            tokenId = item["id"]
+            self.post(urls.logoutOthers % tokenId, data={"n": f"{random.random():.16f}"})
 
     @property
     def available(self) -> bool:
