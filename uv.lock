@@ -333,7 +333,7 @@ wheels = [
 
 [[package]]
 name = "njulogin"
-version = "3.6.1"
+version = "4.0.0rc0"
 source = { editable = "." }
 dependencies = [
     { name = "cryptography" },
