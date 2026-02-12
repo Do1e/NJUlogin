@@ -48,7 +48,7 @@ class baseLogin(object):
     def available(self) -> bool:
         """判断是否登录成功"""
         html = self.get(urls.index)
-        return html.url == urls.index
+        return not html.url.startswith(urls.login.split("?")[0])
 
     def export(self, filename: str, password: str = None) -> None:
         """导出登录信息"""

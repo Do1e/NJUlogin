@@ -1,5 +1,4 @@
 import random
-import re
 import time
 from base64 import b64encode
 
@@ -22,17 +21,14 @@ class pwdLogin(baseLogin):
 
     def getCaptcha(self) -> str:
         """获取验证码"""
-        ms = int(time.time() * 1000) % 1000
+        ms = int(time.time() * 1000)
         captcha = self.get(urls.captcha % ms).content
         ocr = CaptchaOCR()
         return ocr.get_text(captcha)
 
     def get_pwdDefaultEncryptSalt(self, selector: etree._Element) -> str:
         """获取密码加密盐"""
-        pwdDefaultEncryptSalt = "\n".join(selector.xpath("//script/text()"))
-        return re.search(
-            r'pwdDefaultEncryptSalt = "(.*)";', pwdDefaultEncryptSalt
-        ).group(1)
+        return selector.xpath('//*[@id="pwdEncryptSalt"]/@value')[0]
 
     def pwdEncrypt(self, pwdDefaultEncryptSalt: str) -> str:
         """密码加密"""
@@ -52,30 +48,39 @@ class pwdLogin(baseLogin):
         else:
             url = urls.login.split("?")[0]
         html = self.get(url).text
-        captcha = self.getCaptcha()
         selector = etree.HTML(html)
+        # 检查是否需要验证码
+        check_resp = self.get(urls.checkNeedCaptcha, params={"username": self.username})
+        need_captcha = check_resp.json().get("isNeed", True)
+        captcha = self.getCaptcha() if need_captcha else ""
         password = self.pwdEncrypt(self.get_pwdDefaultEncryptSalt(selector))
+
+        def get_field(name):
+            vals = selector.xpath(f'//input[@name="{name}"]/@value')
+            return vals[0] if vals else ""
 
         data = {
             "username": self.username,
             "password": password,
-            "lt": selector.xpath('//input[@name="lt"]/@value')[0],
-            "captchaResponse": captcha,
-            "dllt": selector.xpath('//input[@name="dllt"]/@value')[0],
-            "execution": selector.xpath('//input[@name="execution"]/@value')[0],
-            "_eventId": selector.xpath('//input[@name="_eventId"]/@value')[0],
-            "rmShown": selector.xpath('//input[@name="rmShown"]/@value')[0],
+            "lt": get_field("lt"),
+            "captcha": captcha,
+            "dllt": get_field("dllt"),
+            "execution": get_field("execution"),
+            "_eventId": get_field("_eventId"),
+            "rmShown": get_field("rmShown"),
         }
         res = self.post(url, data=data)
         if self.judge_not_login(res, url):
             # print('登录失败')
             selector = etree.HTML(res.text)
             try:
-                errorMsg = selector.xpath('//span[@id="msg1"]/text()')[0].strip()
+                msgs = selector.xpath('//span[@id="msg1"]/text()') or \
+                       selector.xpath('//*[contains(@class,"msg") or contains(@class,"error")]//text()')
+                errorMsg = msgs[0].strip()
             except IndexError:
                 print("登录失败，未知错误，可能是需要手机验证码，请先尝试手动登录")
                 return None
-            if errorMsg == "无效的验证码":
+            if errorMsg in ("无效的验证码", "图形动态码错误"):
                 if trytimes >= 5:
                     print("登录失败，验证码识别错误次数过多")
                     return None
