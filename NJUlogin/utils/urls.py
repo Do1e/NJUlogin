@@ -1,6 +1,7 @@
 index = "https://authserver.nju.edu.cn/authserver/index.do"
 QRid = "https://authserver.nju.edu.cn/authserver/qrCode/getToken?ts=%d"
 QRimg = "https://authserver.nju.edu.cn/authserver/qrCode/getCode?uuid=%s"
+QRurl = "https://authserver.nju.edu.cn/authserver/qrCode/qrCodeLogin.do?uuid=%s"
 status = "https://authserver.nju.edu.cn/authserver/qrCode/getStatus.htl?ts=%d"
 login = "https://authserver.nju.edu.cn/authserver/login?service=%s"
 captcha = "https://authserver.nju.edu.cn/authserver/getCaptcha.htl?%d"

@@ -13,6 +13,7 @@ dependencies = [
     "pycryptodome>=3.21.0",
     "onnxruntime>=1.20.0",
     "cryptography>=43.0.0",
+    "qrcode>=8.2",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
