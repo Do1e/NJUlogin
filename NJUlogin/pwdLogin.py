@@ -74,8 +74,7 @@ class pwdLogin(baseLogin):
             # print('登录失败')
             selector = etree.HTML(res.text)
             try:
-                msgs = selector.xpath('//span[@id="msg1"]/text()') or \
-                       selector.xpath('//*[contains(@class,"msg") or contains(@class,"error")]//text()')
+                msgs = selector.xpath('//span[@id="showErrorTip"]//text()')
                 errorMsg = msgs[0].strip()
             except IndexError:
                 print("登录失败，未知错误，可能是需要手机验证码，请先尝试手动登录")
