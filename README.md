@@ -43,7 +43,7 @@ yay -S python-njulogin
 </br>
 
 * **扫码登录**：构造`QRlogin`对象即可调用`login`方法进行登录。会在终端打印统一身份验证的二维码，使用手机扫码登录即可。(未测试字体，若出问题请尝试更换终端字体，如`MesloLGS NF`、`Fira Code`，也会在当前目录保存图片文件作为备选方案)
-* **账号密码登录**：使用账号密码作为参数构造`pwdLogin`对象即可调用`login`方法进行登录。
+* **账号密码登录**：使用账号密码作为参数构造`pwdLogin`对象即可调用`login`方法进行登录。新版滑块验证码使用纯 OpenCV 图像处理自动定位缺口。
 * **加载cookies登录**：构造`baseLogin`对象即可调用`load`方法加载cookies，cookies需要通过上述两种登录方式后使用`export`方法导出为文件。`load`和`export`方法可以设置保存文件的密码防止泄露。
 * `login`方法需要传入登录的目的网址，比如`https://p.nju.edu.cn/api/cas/getinfo`表示登录到校园网，返回的网页会保存在`self.response`中。目的网址也可以留空。
 * 目的网址获取方法（举一反三即可）：打开浏览器输入`p.nju.edu.cn`，会发现自动跳转到`https://authserver.nju.edu.cn/authserver/login?service=https://p.nju.edu.cn/api/cas/getinfo`，即为`service=`后面的内容。
