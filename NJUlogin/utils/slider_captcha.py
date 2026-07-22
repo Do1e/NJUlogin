@@ -14,7 +14,7 @@ import numpy as np
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 
-from .utils import urls
+from . import urls
 
 
 CANVAS_WIDTH = 280

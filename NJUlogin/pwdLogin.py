@@ -7,8 +7,8 @@ from Crypto.Util.Padding import pad
 from lxml import etree
 
 from .base import baseLogin
-from .sliderCaptcha import DEFAULT_ATTEMPTS, verify_slider_captcha
 from .utils import urls
+from .utils.slider_captcha import DEFAULT_ATTEMPTS, verify_slider_captcha
 
 
 class pwdLogin(baseLogin):
