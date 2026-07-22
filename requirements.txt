@@ -1,7 +1,6 @@
 requests
-Pillow
 numpy
+opencv-python-headless
 lxml
 pycryptodome
-onnxruntime
 cryptography

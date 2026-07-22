@@ -1,5 +1,4 @@
 import random
-import time
 from base64 import b64encode
 
 import requests
@@ -8,7 +7,7 @@ from Crypto.Util.Padding import pad
 from lxml import etree
 
 from .base import baseLogin
-from .captchaOCR import CaptchaOCR
+from .sliderCaptcha import DEFAULT_ATTEMPTS, verify_slider_captcha
 from .utils import urls
 
 
@@ -19,16 +18,13 @@ class pwdLogin(baseLogin):
         self.username = username
         self.password = password
 
-    def getCaptcha(self) -> str:
-        """获取验证码"""
-        ms = int(time.time() * 1000)
-        captcha = self.get(urls.captcha % ms).content
-        ocr = CaptchaOCR()
-        return ocr.get_text(captcha)
-
     def get_pwdDefaultEncryptSalt(self, selector: etree._Element) -> str:
         """获取密码加密盐"""
         return selector.xpath('//*[@id="pwdEncryptSalt"]/@value')[0]
+
+    def verifySliderCaptcha(self, referer: str, attempts: int = DEFAULT_ATTEMPTS) -> bool:
+        """识别并验证新版滑块验证码。"""
+        return verify_slider_captcha(self, referer, attempts=attempts)
 
     def pwdEncrypt(self, pwdDefaultEncryptSalt: str) -> str:
         """密码加密"""
@@ -52,23 +48,35 @@ class pwdLogin(baseLogin):
         # 检查是否需要验证码
         check_resp = self.get(urls.checkNeedCaptcha, params={"username": self.username})
         need_captcha = check_resp.json().get("isNeed", True)
-        captcha = self.getCaptcha() if need_captcha else ""
+        if need_captcha and not self.verifySliderCaptcha(
+            url, attempts=max(1, DEFAULT_ATTEMPTS - trytimes)
+        ):
+            print("登录失败，滑块验证码验证错误次数过多")
+            return None
         password = self.pwdEncrypt(self.get_pwdDefaultEncryptSalt(selector))
 
+        forms = selector.xpath('//form[.//input[@name="cllt" and @value="userNameLogin"]]')
+        if not forms:
+            raise RuntimeError("未找到统一身份认证的账号密码登录表单")
+        password_form = forms[0]
+
         def get_field(name):
-            vals = selector.xpath(f'//input[@name="{name}"]/@value')
+            vals = password_form.xpath(f'.//input[@name="{name}"]/@value')
             return vals[0] if vals else ""
 
         data = {
             "username": self.username,
             "password": password,
             "lt": get_field("lt"),
-            "captcha": captcha,
+            "captcha": "",
+            "cllt": get_field("cllt") or "userNameLogin",
             "dllt": get_field("dllt"),
             "execution": get_field("execution"),
             "_eventId": get_field("_eventId"),
-            "rmShown": get_field("rmShown"),
         }
+        rm_shown = get_field("rmShown")
+        if rm_shown:
+            data["rmShown"] = rm_shown
         res = self.post(url, data=data)
         if self.judge_not_login(res, url):
             # print('登录失败')
@@ -79,14 +87,7 @@ class pwdLogin(baseLogin):
             except IndexError:
                 print("登录失败，未知错误，可能是需要手机验证码，请先尝试手动登录")
                 return None
-            if errorMsg in ("无效的验证码", "图形动态码错误"):
-                if trytimes >= 5:
-                    print("登录失败，验证码识别错误次数过多")
-                    return None
-                print("登录失败，验证码识别错误，正在重试")
-                return self.login(dest, trytimes + 1)
-            else:
-                print("登录失败，" + errorMsg)
+            print("登录失败，" + errorMsg)
             return None
         self.response = res
         return self.session
