@@ -14,9 +14,11 @@ from .utils import config, get_post, urls
 
 
 class baseLogin(object):
-    def __init__(
-        self, headers: dict = config.headers, timeout: int = config.timeout):
+    def __init__(self, headers: dict = None, timeout: int = config.timeout):
         self.session = requests.Session()
+        headers = {} if headers is None else headers.copy()
+        if "User-Agent" not in requests.structures.CaseInsensitiveDict(headers):
+            headers["User-Agent"] = config.user_agent
         self.session.headers.update(headers)
         self.timeout = timeout
 
@@ -28,9 +30,7 @@ class baseLogin(object):
 
     def judge_not_login(self, html: requests.Response, loginurl: str) -> bool:
         """判断是否登录成功"""
-        return (
-            html is None or html.url == loginurl or html.url.endswith("security_check")
-        )
+        return html is None or html.url == loginurl or html.url.endswith("security_check")
 
     def logout(self) -> None:
         """退出登录"""
@@ -51,18 +51,30 @@ class baseLogin(object):
     @property
     def available(self) -> bool:
         """判断是否登录成功"""
-        html = self.get(urls.index)
+        try:
+            html = self.get(urls.index)
+        except requests.exceptions.TooManyRedirects:
+            return False
         return not html.url.startswith(urls.login.split("?")[0])
 
     def export(self, filename: str, password: str = None) -> None:
         """导出登录信息"""
         if not self.available:
             raise ValueError("未登录，无法导出登录信息")
+        cookies = [
+            {
+                "name": c.name,
+                "value": c.value,
+                "domain": c.domain,
+                "path": c.path or "/",
+            }
+            for c in self.session.cookies
+        ]
+        payload = json.dumps(cookies, indent=2)
         if password is None:
             with open(filename, "w") as f:
-                json.dump(self.session.cookies.get_dict(), f, indent=2)
+                f.write(payload)
         else:
-            cookies = json.dumps(self.session.cookies.get_dict(), indent=2).encode()
             salt = os.urandom(16)
             kdf = PBKDF2HMAC(
                 algorithm=hashes.SHA256(),
@@ -73,7 +85,7 @@ class baseLogin(object):
             )
             key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
             fernet = Fernet(key)
-            enc_cookie = fernet.encrypt(cookies)
+            enc_cookie = fernet.encrypt(payload.encode())
             with open(filename, "wb") as f:
                 f.write(enc_cookie + salt)
 
@@ -84,7 +96,7 @@ class baseLogin(object):
                 with open(filename, "r") as f:
                     cookies = json.load(f)
             except UnicodeDecodeError:
-                raise RuntimeError("请提供密码")
+                raise RuntimeError("解码失败，请检查文件是否正确，或者需要提供密码")
         else:
             with open(filename, "rb") as f:
                 enc_cookie = f.read()
@@ -100,6 +112,14 @@ class baseLogin(object):
             key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
             fernet = Fernet(key)
             cookies = json.loads(fernet.decrypt(enc_cookie))
-        self.session.cookies.update(cookies)
+
+        for c in cookies:
+            try:
+                self.session.cookies.set(
+                    c["name"], c["value"], domain=c["domain"], path=c.get("path") or "/"
+                )
+            except TypeError:
+                break
         if not self.available:
             raise ValueError("登录信息已失效，请重新登录")
+        self.export(filename, password)

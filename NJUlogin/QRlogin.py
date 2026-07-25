@@ -36,10 +36,13 @@ class QR(object):
 
 
 class QRlogin(baseLogin):
-    def __init__(self, loginTimeout: int = config.loginTimeout, *args, **kwargs):
+    def __init__(
+        self,
+        headers: dict = None,
+        timeout: int = config.timeout,
+    ):
         """二维码登录"""
-        super().__init__(*args, **kwargs)
-        self.loginTimeout = loginTimeout
+        super().__init__(headers=headers, timeout=timeout)
 
     def getStatus(self, qr: QR) -> str:
         """等候扫码，返回扫码状态"""
@@ -51,7 +54,7 @@ class QRlogin(baseLogin):
         """等候登录，返回登录状态"""
         # 0: 未扫码, 1: 登录成功, 2: 已扫码未确认登录, 3: 二维码失效
         first2 = False
-        for _ in range(self.loginTimeout):
+        for _ in range(60):
             status = self.getStatus(qr)
             try:
                 status = int(status)

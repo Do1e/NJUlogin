@@ -7,16 +7,28 @@ from Crypto.Util.Padding import pad
 from lxml import etree
 
 from .base import baseLogin
-from .utils import urls
+from .utils import config, urls
 from .utils.slider_captcha import DEFAULT_ATTEMPTS, verify_slider_captcha
 
 
 class pwdLogin(baseLogin):
-    def __init__(self, username: str, password: str, *args, **kwargs):
+    def __init__(
+        self,
+        username: str,
+        password: str,
+        headers: dict = None,
+        timeout: int = config.timeout,
+        mobile: bool = False,
+    ):
         """账号密码登录"""
-        super().__init__(*args, **kwargs)
+        if mobile:
+            headers = {} if headers is None else headers.copy()
+            if "User-Agent" not in requests.structures.CaseInsensitiveDict(headers):
+                headers["User-Agent"] = config.mobile_user_agent
+        super().__init__(headers=headers, timeout=timeout)
         self.username = username
         self.password = password
+        self.mobile = mobile
 
     def get_pwdDefaultEncryptSalt(self, selector: etree._Element) -> str:
         """获取密码加密盐"""
@@ -70,7 +82,7 @@ class pwdLogin(baseLogin):
             "lt": get_field("lt"),
             "captcha": "",
             "cllt": get_field("cllt") or "userNameLogin",
-            "dllt": get_field("dllt"),
+            "dllt": "mobileLogin" if self.mobile else get_field("dllt"),
             "execution": get_field("execution"),
             "_eventId": get_field("_eventId"),
         }
