@@ -27,7 +27,7 @@ unbindURL = 'https://p.nju.edu.cn/api/portal/v1/quicklogin/unbind/id/%d'
 def init_session():
     """初始化requests会话"""
     session = requests.Session()
-    session.headers.update(config.headers)
+    session.headers.update({'User-Agent': config.user_agent})
     return session
 
 def get_args() -> argparse.Namespace:
