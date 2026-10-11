@@ -62,6 +62,9 @@ yay -S python-njulogin
   * `export(self, filename: str, password: str = None)`：导出cookies，推荐在公用机器上使用环境变量设置文件密码
   * `load(self, filename: str, password: str = None)`：加载cookies，推荐在公用机器上使用环境变量设置文件密码
 
+`get` 和 `post` 支持通过关键字参数设置单次请求选项，例如
+`client.get(url, timeout=10, verify=True)`。未指定时，`timeout` 使用构造对象时的设置，`verify` 默认为 `False`。
+
 ### cli登录p.nju
 
 使用`curl`命令可以简洁实现：

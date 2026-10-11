@@ -2,8 +2,9 @@ import requests
 
 
 def get(session: requests.Session, url: str, **kwargs) -> requests.Response:
+    kwargs.setdefault("verify", False)
     try:
-        return session.get(url, verify=False, **kwargs)
+        return session.get(url, **kwargs)
     except requests.exceptions.Timeout:
         raise TimeoutError('请求网页"%s"超时' % url)
     except requests.exceptions.ConnectionError:
@@ -13,8 +14,9 @@ def get(session: requests.Session, url: str, **kwargs) -> requests.Response:
 def post(
     session: requests.Session, url: str, data: dict, **kwargs
 ) -> requests.Response:
+    kwargs.setdefault("verify", False)
     try:
-        return session.post(url, data=data, verify=False, **kwargs)
+        return session.post(url, data=data, **kwargs)
     except requests.exceptions.Timeout:
         raise TimeoutError('向网页"%s"提交数据超时' % url)
     except requests.exceptions.ConnectionError:

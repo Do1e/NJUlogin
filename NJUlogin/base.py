@@ -23,10 +23,12 @@ class baseLogin(object):
         self.timeout = timeout
 
     def get(self, url: str, **kwargs) -> requests.Response:
-        return get_post.get(self.session, url, timeout=self.timeout, **kwargs)
+        kwargs.setdefault("timeout", self.timeout)
+        return get_post.get(self.session, url, **kwargs)
 
     def post(self, url: str, data: dict, **kwargs) -> requests.Response:
-        return get_post.post(self.session, url, data, timeout=self.timeout, **kwargs)
+        kwargs.setdefault("timeout", self.timeout)
+        return get_post.post(self.session, url, data, **kwargs)
 
     def judge_not_login(self, html: requests.Response, loginurl: str) -> bool:
         """判断是否登录成功"""
